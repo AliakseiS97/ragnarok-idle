@@ -1,5 +1,8 @@
 package com.ragnarok.idle.auth;
 
+import com.ragnarok.idle.math.BigNum;
+import com.ragnarok.idle.player.Avatar;
+import com.ragnarok.idle.player.AvatarRepository;
 import com.ragnarok.idle.player.Player;
 import com.ragnarok.idle.player.PlayerRepository;
 import com.ragnarok.idle.security.JwtService;
@@ -9,15 +12,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AuthService {
 
     private final PlayerRepository playerRepository;
+    private final AvatarRepository avatarRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(PlayerRepository playerRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(PlayerRepository playerRepository, AvatarRepository avatarRepository,
+                        PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.playerRepository = playerRepository;
+        this.avatarRepository = avatarRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -31,7 +39,21 @@ public class AuthService {
         Player player = new Player();
         player.setUsername(username);
         player.setPasswordHash(passwordEncoder.encode(rawPassword));
+        player.setCurrentLevel(1L);
+        player.setMaxLevel(1L);
+        player.setGold(BigNum.ZERO);
+        player.setAsh(BigNum.ZERO);
+        player.setLastCollectedAt(LocalDateTime.now());
+        player.setCurrentSubLevel(1);
+        // HP первого моба = baseHP из HP-кривой (GDD §3.2); полная формула — в BattleService (Часть 3).
+        player.setCurrentMobHp(BigNum.of(10));
         playerRepository.save(player);
+
+        Avatar avatar = new Avatar();
+        avatar.setPlayerId(player.getId());
+        avatar.setTapDamageLevel(0L);
+        avatar.setAutotapLevel(0L);
+        avatarRepository.save(avatar);
 
         return jwtService.generateToken(username);
     }

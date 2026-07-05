@@ -19,7 +19,11 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/h2-console/**"
+            "/h2-console/**",
+            // Любой ResponseStatusException (404/409/...) уходит в response.sendError(), Tomcat
+            // форвардит запрос на /error, и этот internal forward снова идёт через security-фильтры.
+            // Без permitAll здесь реальный статус (404/409) маскируется 403 на этом форварде.
+            "/error"
     };
 
     @Bean

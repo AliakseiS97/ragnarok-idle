@@ -1,5 +1,6 @@
 package com.ragnarok.idle.math;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -154,20 +155,20 @@ public final class BigNum implements Comparable<BigNum> {
             double plain = mantissa * Math.pow(10, exponent);
             return (plain == Math.floor(plain))
                     ? String.valueOf((long) plain)
-                    : String.format("%.2f", plain);
+                    : String.format(Locale.ROOT, "%.2f", plain);
         }
         String[] shortUnits = {"", "K", "M", "B", "T"};
         long tier = exponent / 3;
         if (tier < shortUnits.length) {
             double val = mantissa * Math.pow(10, exponent % 3);
-            return String.format("%.2f%s", val, shortUnits[(int) tier]);
+            return String.format(Locale.ROOT, "%.2f%s", val, shortUnits[(int) tier]);
         }
         // за пределами T — буквенные суффиксы aa, ab, ... (idle-нотация)
         long idx = tier - shortUnits.length; // 0 -> aa
         char first = (char) ('a' + (idx / 26) % 26);
         char second = (char) ('a' + idx % 26);
         double val = mantissa * Math.pow(10, exponent % 3);
-        return String.format("%.2f%c%c", val, first, second);
+        return String.format(Locale.ROOT, "%.2f%c%c", val, first, second);
     }
 
     /** Сериализация для БД: строка "mantissa|exponent". */

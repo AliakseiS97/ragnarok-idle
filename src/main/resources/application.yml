@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ragnarok-idle
+  # Профиль по умолчанию — H2 в памяти, чтобы запустить без установки Postgres.
+  # Для продакшена переключить на postgres (см. application-postgres.yml).
+  datasource:
+    url: jdbc:h2:mem:ragnarok;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true          # http://localhost:8080/h2-console
+  jpa:
+    hibernate:
+      ddl-auto: validate      # схему создаёт Flyway, не Hibernate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html    # http://localhost:8080/swagger-ui.html
+
+# Секрет для JWT — берётся из переменной окружения APP_JWT_SECRET.
+# Значение по умолчанию — только для локальной разработки, для прода задать реальный APP_JWT_SECRET.
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:change-me-to-a-long-random-secret-key-at-least-256-bits-long!!}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}   # 24 часа

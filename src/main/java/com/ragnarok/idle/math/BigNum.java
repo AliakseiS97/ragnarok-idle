@@ -115,6 +115,33 @@ public final class BigNum implements Comparable<BigNum> {
         return normalize(negative ? -newMant : newMant, newExp);
     }
 
+    /**
+     * Возведение в произвольную (в т.ч. дробную) степень — нужно для формул вида
+     * {@code HP^0.97} (золото, GDD/экономика) и {@code HP^0.0009} (Пепел, §3.9).
+     * Отрицательное основание не поддерживается (в игровых величинах его не бывает).
+     */
+    public BigNum pow(double power) {
+        if (this.isZero()) return power == 0 ? ONE : ZERO;
+        if (this.mantissa < 0) {
+            throw new ArithmeticException("pow(double) не поддерживает отрицательное основание");
+        }
+        double logM = Math.log10(this.mantissa);
+        double totalLog = (logM + this.exponent) * power;
+        long newExp = (long) Math.floor(totalLog);
+        double newMant = Math.pow(10, totalLog - newExp);
+        return normalize(newMant, newExp);
+    }
+
+    /**
+     * Округление вниз до целого. За пределами точности double (exponent ≥ 15)
+     * дробной части у величины уже физически нет — возвращаем как есть.
+     */
+    public BigNum floor() {
+        if (this.exponent >= 15) return this;
+        double plain = mantissa * Math.pow(10, exponent);
+        return BigNum.of(Math.floor(plain));
+    }
+
     // ---------- Сравнение ----------
 
     @Override

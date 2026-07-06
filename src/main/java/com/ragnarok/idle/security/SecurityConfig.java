@@ -23,7 +23,10 @@ public class SecurityConfig {
             // Любой ResponseStatusException (404/409/...) уходит в response.sendError(), Tomcat
             // форвардит запрос на /error, и этот internal forward снова идёт через security-фильтры.
             // Без permitAll здесь реальный статус (404/409) маскируется 403 на этом форварде.
-            "/error"
+            "/error",
+            // Статический браузерный фронт (src/main/resources/static) — сам логин ещё без токена.
+            "/",
+            "/index.html"
     };
 
     @Bean

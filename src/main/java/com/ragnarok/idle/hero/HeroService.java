@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -39,23 +40,28 @@ public class HeroService {
 
     /** Суммарный пассивный DPS игрока с агрегацией баферов (GDD §3.5). Милевехи/редкость/артефакты — след. спринты. */
     public BigNum totalPassiveDps(Long playerId) {
+        return passiveDpsByHero(playerId).values().stream().reduce(BigNum.ZERO, BigNum::add);
+    }
+
+    /** Вклад каждого героя в totalPassiveDps (после бафер-множителя) — для показа в UI (GDD §3.5). */
+    public Map<Long, BigNum> passiveDpsByHero(Long playerId) {
         List<PlayerHero> owned = playerHeroRepository.findByPlayerId(playerId);
         if (owned.isEmpty()) {
-            return BigNum.ZERO;
+            return Map.of();
         }
 
         Map<Long, Hero> heroesById = heroRepository.findAllById(
                 owned.stream().map(PlayerHero::getHeroId).toList()
         ).stream().collect(Collectors.toMap(Hero::getId, Function.identity()));
 
-        BigNum sumHeroDps = BigNum.ZERO;
+        Map<Long, BigNum> rawDpsByHero = new HashMap<>();
         double bafferBonus = 0;
         boolean specialBafferActive = false;
 
         for (PlayerHero ph : owned) {
             Hero hero = heroesById.get(ph.getHeroId());
             BigNum heroDps = hero.getBaseDps().multiply(BigNum.of(DPS_GROWTH).pow(ph.getLevel() - 1));
-            sumHeroDps = sumHeroDps.add(heroDps);
+            rawDpsByHero.put(ph.getHeroId(), heroDps);
 
             if (hero.getType() == HeroType.BAFFER) {
                 bafferBonus += ph.getLevel() * BAFFER_STEP;
@@ -68,7 +74,9 @@ public class HeroService {
         if (specialBafferActive) {
             bafferBonus *= SPECIAL_BAFFER_MULT;
         }
-        return sumHeroDps.multiply(1 + bafferBonus);
+        double multiplier = 1 + bafferBonus;
+        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier));
+        return rawDpsByHero;
     }
 
     @Transactional

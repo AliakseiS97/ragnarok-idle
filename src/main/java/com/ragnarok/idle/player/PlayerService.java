@@ -58,18 +58,21 @@ public class PlayerService {
 
         Map<Long, PlayerHero> owned = playerHeroRepository.findByPlayerId(player.getId()).stream()
                 .collect(Collectors.toMap(PlayerHero::getHeroId, Function.identity()));
+        Map<Long, BigNum> dpsByHero = heroService.passiveDpsByHero(player.getId());
 
         List<PlayerHeroView> heroViews = heroRepository.findAll().stream()
                 .sorted(Comparator.comparing(Hero::getId))
                 .map(hero -> {
                     PlayerHero playerHero = owned.get(hero.getId());
+                    BigNum heroDps = dpsByHero.getOrDefault(hero.getId(), BigNum.ZERO);
                     return new PlayerHeroView(
                             hero.getId(),
                             hero.getName(),
                             hero.getType().name(),
                             playerHero != null,
                             playerHero != null ? playerHero.getLevel() : 0L,
-                            BigNumDto.from(hero.getPrice())
+                            BigNumDto.from(hero.getPrice()),
+                            BigNumDto.from(heroDps)
                     );
                 })
                 .toList();

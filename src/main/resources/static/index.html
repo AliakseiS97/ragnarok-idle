@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Рагнарёк: Восхождение</title>
+<style>
+    :root {
+        --bg: #0b0d12;
+        --panel: #14171f;
+        --panel-2: #1b1f2a;
+        --border: #2a2f3d;
+        --rune: #c9a24b;
+        --rune-dim: #8a7238;
+        --text: #d8dbe4;
+        --text-dim: #7c8296;
+        --danger: #d9534f;
+        --ok: #4caf7d;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(ellipse at top, #171b26 0%, var(--bg) 60%);
+        color: var(--text);
+        font-family: "Cinzel", Georgia, "Times New Roman", serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px 12px 60px;
+    }
+    h1 {
+        letter-spacing: 4px;
+        color: var(--rune);
+        text-shadow: 0 0 12px rgba(201, 162, 75, 0.35);
+        font-size: 1.6rem;
+        margin: 8px 0 20px;
+        text-align: center;
+    }
+    .hidden { display: none !important; }
+    /* --- auth --- */
+    #authScreen {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 28px 32px;
+        width: 100%;
+        max-width: 340px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.4);
+    }
+    #authScreen label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        margin: 12px 0 4px;
+    }
+    #authScreen input {
+        width: 100%;
+        padding: 8px 10px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+    }
+    .authButtons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    button {
+        cursor: pointer;
+        font-family: inherit;
+        border: 1px solid var(--rune-dim);
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        color: var(--rune);
+        border-radius: 6px;
+        padding: 8px 14px;
+        transition: 0.15s;
+    }
+    button:hover:not(:disabled) {
+        border-color: var(--rune);
+        box-shadow: 0 0 8px rgba(201,162,75,0.35);
+    }
+    button:disabled { opacity: 0.4; cursor: default; }
+
+    /* --- game --- */
+    #gameScreen { width: 100%; max-width: 640px; }
+
+    #statusBar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    #statusBar div span.label { display: block; font-size: 0.7rem; color: var(--text-dim); }
+    #statusBar div span.value { font-size: 1.05rem; color: var(--rune); }
+
+    #battleArea {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    #mobInfo { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; }
+    #tapButton {
+        font-size: 3rem;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 2px solid var(--rune-dim);
+        background: radial-gradient(circle at 35% 30%, #2a2115, #0f0d09 70%);
+        margin: 6px 0;
+    }
+    #tapButton:active { transform: scale(0.96); }
+    #tapFeedback { min-height: 22px; margin-top: 10px; font-size: 0.9rem; color: var(--ok); }
+
+    #heroList {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+    #heroList h2 { color: var(--rune); font-size: 1rem; margin: 4px 8px 12px; letter-spacing: 2px; }
+    .hero-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    .hero-row:last-child { border-bottom: none; }
+    .hero-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+    .hero-name { font-weight: bold; }
+    .hero-meta { font-size: 0.75rem; color: var(--text-dim); }
+    .hero-info { flex: 1; min-width: 0; }
+    .hero-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    #rebirthArea { text-align: center; margin-bottom: 10px; }
+    #rebirthArea button { border-color: var(--danger); color: #e08a87; }
+
+    #errorToast {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #3a1414;
+        border: 1px solid var(--danger);
+        color: #f2b3b0;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-family: Georgia, serif;
+        font-size: 0.9rem;
+        z-index: 100;
+    }
+    #errorToast.ok {
+        background: #12301f;
+        border-color: var(--ok);
+        color: #b7e4cb;
+    }
+</style>
+</head>
+<body>
+
+<h1>ᛦ Рагнарёк: Восхождение ᛦ</h1>
+
+<div id="errorToast" class="hidden"></div>
+
+<div id="authScreen">
+    <div id="authTabs" style="display:flex; gap:8px; margin-bottom: 6px;">
+        <button id="tabLogin" style="flex:1">Вход</button>
+        <button id="tabRegister" style="flex:1">Регистрация</button>
+    </div>
+    <label for="username">Имя</label>
+    <input id="username" type="text" autocomplete="username">
+    <label for="password">Пароль</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <div class="authButtons">
+        <button id="submitAuth" style="flex:1">Войти</button>
+    </div>
+</div>
+
+<div id="gameScreen" class="hidden">
+    <div id="statusBar">
+        <div><span class="label">Уровень</span><span class="value" id="stLevel">-</span></div>
+        <div><span class="label">Золото</span><span class="value" id="stGold">-</span></div>
+        <div><span class="label">Пепел</span><span class="value" id="stAsh">-</span></div>
+        <div><span class="label">DPS</span><span class="value" id="stDps">-</span></div>
+    </div>
+
+    <div id="battleArea">
+        <div id="mobInfo">Этаж - · моб -/11 · HP: -</div>
+        <button id="tapButton">👹</button>
+        <div id="tapFeedback"></div>
+    </div>
+
+    <div id="rebirthArea">
+        <button id="rebirthButton">🔥 Перерождение</button>
+    </div>
+
+    <div id="heroList">
+        <h2>Герои</h2>
+        <div id="heroRows"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var authToken = null; // JWT только в памяти страницы, не в localStorage
+    var authMode = 'login';
+    var pollTimer = null;
+    var lastTotalDps = '0';
+
+    var typeIcon = { ACTIVE: '⚔️', PASSIVE: '🛡️', BAFFER: '📯', REBIRTH: '🌌' };
+
+    var authScreen = document.getElementById('authScreen');
+    var gameScreen = document.getElementById('gameScreen');
+    var errorToast = document.getElementById('errorToast');
+
+    function showToast(message, ok) {
+        errorToast.textContent = message;
+        errorToast.classList.toggle('ok', !!ok);
+        errorToast.classList.remove('hidden');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(function () { errorToast.classList.add('hidden'); }, 3500);
+    }
+    function showError(message) { showToast(message, false); }
+
+    function api(path, method, body) {
+        var headers = { 'Content-Type': 'application/json' };
+        if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+        return fetch(path, {
+            method: method,
+            headers: headers,
+            body: body !== undefined ? JSON.stringify(body) : undefined
+        }).then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (data) {
+                if (!res.ok) {
+                    if (res.status === 401 && authToken) {
+                        logout();
+                    }
+                    throw new Error(data.message || (res.status + ' ' + res.statusText));
+                }
+                return data;
+            });
+        });
+    }
+
+    // ---- auth ----
+    document.getElementById('tabLogin').addEventListener('click', function () { setAuthMode('login'); });
+    document.getElementById('tabRegister').addEventListener('click', function () { setAuthMode('register'); });
+
+    function setAuthMode(mode) {
+        authMode = mode;
+        document.getElementById('submitAuth').textContent = mode === 'login' ? 'Войти' : 'Создать';
+        document.getElementById('tabLogin').disabled = mode === 'login';
+        document.getElementById('tabRegister').disabled = mode === 'register';
+    }
+    setAuthMode('login');
+
+    document.getElementById('submitAuth').addEventListener('click', function () {
+        var username = document.getElementById('username').value.trim();
+        var password = document.getElementById('password').value;
+        if (!username || !password) { showError('Введи имя и пароль'); return; }
+
+        var path = authMode === 'login' ? '/auth/login' : '/auth/register';
+        api(path, 'POST', { username: username, password: password }).then(function (data) {
+            authToken = data.token;
+            authScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            refreshState();
+            pollTimer = setInterval(refreshState, 1000);
+        }).catch(function (err) { showError(err.message); });
+    });
+
+    function logout() {
+        authToken = null;
+        clearInterval(pollTimer);
+        gameScreen.classList.add('hidden');
+        authScreen.classList.remove('hidden');
+    }
+
+    // ---- state polling ----
+    function refreshState() {
+        api('/player/me', 'GET').then(renderState).catch(function (err) { showError(err.message); });
+    }
+
+    function renderState(state) {
+        document.getElementById('stLevel').textContent = state.currentLevel;
+        document.getElementById('stGold').textContent = state.gold.display;
+        document.getElementById('stAsh').textContent = state.ash.display;
+        document.getElementById('mobInfo').textContent =
+            'Этаж ' + state.currentLevel + ' · моб ' + state.currentSubLevel + '/11 · HP: ' + state.currentMobHp.display;
+
+        var totalDps = state.heroes.reduce(function (sum, h) { return sum + (h.dps.mantissa * Math.pow(10, h.dps.exponent)); }, 0);
+        document.getElementById('stDps').textContent = totalDps > 0 ? totalDps.toFixed(1) : '0';
+
+        renderHeroes(state.heroes);
+    }
+
+    function renderHeroes(heroes) {
+        var container = document.getElementById('heroRows');
+        container.innerHTML = '';
+        heroes.forEach(function (hero) {
+            var row = document.createElement('div');
+            row.className = 'hero-row';
+
+            var icon = document.createElement('div');
+            icon.className = 'hero-icon';
+            icon.textContent = typeIcon[hero.type] || '❔';
+            row.appendChild(icon);
+
+            var info = document.createElement('div');
+            info.className = 'hero-info';
+            info.innerHTML =
+                '<div class="hero-name">' + hero.name + '</div>' +
+                '<div class="hero-meta">ур. ' + hero.level + ' · DPS ' + hero.dps.display + ' · цена ' + hero.price.display + '</div>';
+            row.appendChild(info);
+
+            var actions = document.createElement('div');
+            actions.className = 'hero-actions';
+
+            if (!hero.owned) {
+                var buyBtn = document.createElement('button');
+                buyBtn.textContent = 'Купить';
+                buyBtn.addEventListener('click', function () {
+                    api('/heroes/' + hero.heroId + '/buy', 'POST', {})
+                        .then(refreshState)
+                        .catch(function (err) { showError(err.message); });
+                });
+                actions.appendChild(buyBtn);
+            } else {
+                var upBtn = document.createElement('button');
+                upBtn.textContent = 'Улучшить';
+                upBtn.addEventListener('click', function () {
+                    api('/heroes/' + hero.heroId + '/upgrade', 'POST', { levels: 1 })
+                        .then(refreshState)
+                        .catch(function (err) { showError(err.message); });
+                });
+                actions.appendChild(upBtn);
+            }
+            row.appendChild(actions);
+            container.appendChild(row);
+        });
+    }
+
+    // ---- tap ----
+    document.getElementById('tapButton').addEventListener('click', function () {
+        api('/battle/tap', 'POST', { taps: 1 }).then(function (res) {
+            var msg = 'Урон ' + res.damageDealt.display + ' · +' + res.goldGained.display + ' золота';
+            if (res.bossDefeated) msg += ' · 👑 Босс повержен!';
+            if (res.leveledUp) msg += ' · Новый уровень: ' + res.currentLevel;
+            document.getElementById('tapFeedback').textContent = msg;
+
+            document.getElementById('stLevel').textContent = res.currentLevel;
+            document.getElementById('stGold').textContent = res.goldTotal.display;
+            document.getElementById('mobInfo').textContent =
+                'Этаж ' + res.currentLevel + ' · моб ' + res.currentSubLevel + '/11 · HP: ' + res.currentMobHpRemaining.display;
+        }).catch(function (err) { showError(err.message); });
+    });
+
+    // ---- rebirth ----
+    document.getElementById('rebirthButton').addEventListener('click', function () {
+        if (!confirm('Перерождение сбросит текущий прогресс (уровень, героев) в обмен на Пепел. Продолжить?')) return;
+        api('/rebirth', 'POST', {}).then(function (res) {
+            showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
+            refreshState();
+        }).catch(function (err) { showError(err.message); });
+    });
+})();
+</script>
+</body>
+</html>

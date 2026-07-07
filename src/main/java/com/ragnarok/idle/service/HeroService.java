@@ -25,8 +25,10 @@ public class HeroService {
 
     /** +10%/уровень (economy_constants.md: "Множ. DPS за ур. героя"; было 1.08 — поднято плейтестом). */
     private static final double DPS_GROWTH = 1.10;
-    /** 15-25%; конкретное число из economy_constants.md ("Бонус бафера/ур."). */
-    private static final double BAFFER_STEP = 0.2;
+    /** Веха бафера срабатывает ОДНОКРАТНО на этом уровне героя (GDD §3.7/правка ТЗ), а не за каждый уровень. */
+    private static final long BAFFER_MILESTONE_LEVEL = 25;
+    /** +25% к общему DPS команды разово на вехе; дальше растёт только личный DPS бафера. */
+    private static final double BAFFER_MILESTONE_BONUS = 0.25;
     private static final double SPECIAL_BAFFER_MULT = 3.0;
     /** Цена апгрейда героя растёт на 7%/уровень; базой берём цену найма героя (в источнике отдельно не указана). */
     private static final double UPGRADE_COST_GROWTH = 1.07;
@@ -68,7 +70,9 @@ public class HeroService {
             rawDpsByHero.put(ph.getHeroId(), heroDps);
 
             if (hero.getType() == HeroType.BAFFER) {
-                bafferBonus += ph.getLevel() * BAFFER_STEP;
+                if (ph.getLevel() >= BAFFER_MILESTONE_LEVEL) {
+                    bafferBonus += BAFFER_MILESTONE_BONUS;
+                }
                 if (hero.isSpecialBaffer()) {
                     specialBafferActive = true;
                 }

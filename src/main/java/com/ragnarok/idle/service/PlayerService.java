@@ -104,8 +104,20 @@ public class PlayerService {
                 avatar.getAutotapLevel(),
                 BigNumDto.from(BattleService.tapDamage(avatar)),
                 BigNumDto.from(AvatarService.upgradeCostFrom(avatar.getTapDamageLevel())),
+                player.isAutoAdvance(),
+                bossTimeLeftSeconds(player),
                 heroViews
         );
+    }
+
+    /** Остаток таймера босса для UI; null — игрок не на боссе. */
+    private Long bossTimeLeftSeconds(Player player) {
+        if (!CombatEngine.isBossSlot(player.getCurrentLevel(), player.getCurrentSubLevel())
+                || player.getBossStartedAt() == null) {
+            return null;
+        }
+        long elapsed = Duration.between(player.getBossStartedAt(), LocalDateTime.now()).getSeconds();
+        return Math.max(0, CombatEngine.BOSS_TIME_LIMIT_SECONDS - elapsed);
     }
 
     /**
@@ -118,11 +130,12 @@ public class PlayerService {
         Player player = playerRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
 
+        combatEngine.syncBossTimer(player, LocalDateTime.now());
         BigNum totalPassiveDps = heroService.totalPassiveDps(player.getId());
         long cappedSeconds = Math.min(hours * 3600L, OFFLINE_CAP_SECONDS);
         if (!totalPassiveDps.isZero()) {
-            // каждая секунда DPS — отдельный удар, как в онлайн-тике
-            combatEngine.applyHits(player, totalPassiveDps, cappedSeconds);
+            // каждая секунда DPS — отдельный удар; таймер босса идёт внутри симуляции
+            combatEngine.applyHits(player, totalPassiveDps, cappedSeconds, true);
         }
         player.setLastCollectedAt(LocalDateTime.now());
         playerRepository.save(player);
@@ -142,6 +155,7 @@ public class PlayerService {
         LocalDateTime now = LocalDateTime.now();
         long elapsedSeconds = Duration.between(player.getLastCollectedAt(), now).getSeconds();
         player.setLastCollectedAt(now);
+        combatEngine.syncBossTimer(player, now);
 
         if (elapsedSeconds <= 0) {
             return BigNum.ZERO;
@@ -154,7 +168,7 @@ public class PlayerService {
 
         if (elapsedSeconds <= ONLINE_TICK_MAX_SECONDS) {
             // каждая секунда DPS — отдельный удар (без переноса урона между мобами)
-            combatEngine.applyHits(player, totalPassiveDps, elapsedSeconds);
+            combatEngine.applyHits(player, totalPassiveDps, elapsedSeconds, true);
             return BigNum.ZERO;
         }
 

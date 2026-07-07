@@ -2,15 +2,20 @@ package com.ragnarok.idle.service;
 
 import com.ragnarok.idle.domain.Avatar;
 import com.ragnarok.idle.domain.Player;
+import com.ragnarok.idle.dto.PlayerStateResponse;
 import com.ragnarok.idle.dto.TapResponse;
 import com.ragnarok.idle.economy.EconomyCurves;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -94,6 +99,91 @@ class BattleServiceTest {
         assertEquals(1, response.currentSubLevel());
         assertEquals(EconomyCurves.mobHp(6).toDisplayString(), response.currentMobHpRemaining().display(),
                 "уровень 6 начинается с полного HP моба (кривая не падает после босса)");
+    }
+
+    @Test
+    void bossTimerExpiryRestoresBossAndDropsPlayerToMobs() {
+        authService.register("battle_timeout", "password123");
+        Player player = playerRepository.findByUsername("battle_timeout").orElseThrow();
+        player.setCurrentLevel(5L);
+        player.setMaxLevel(5L);
+        player.setCurrentSubLevel(10);
+        player.setCurrentMobHp(EconomyCurves.bossHp(5));
+        player.setBossStartedAt(LocalDateTime.now().minusSeconds(31)); // 30с истекли
+        playerRepository.save(player);
+
+        TapResponse response = battleService.tap("battle_timeout", 1);
+
+        assertFalse(response.bossDefeated());
+        assertFalse(response.leveledUp());
+        assertEquals(5L, response.currentLevel(), "уровень не пройден");
+        assertEquals(1, response.currentSubLevel(), "игрок отброшен на мобов уровня");
+        // тап уже пошёл по 1-му мобу (93 HP - 1)
+        assertEquals("92", response.currentMobHpRemaining().display());
+    }
+
+    @Test
+    void farmModeLoopsMobsWithoutAdvancing() {
+        authService.register("battle_farm", "password123");
+        Player player = playerRepository.findByUsername("battle_farm").orElseThrow();
+        player.setCurrentSubLevel(10); // последний моб уровня 1
+        player.setAutoAdvance(false);  // флаг автоперехода ВЫКЛ — фарм
+        playerRepository.save(player);
+
+        TapResponse response = battleService.tap("battle_farm", 10); // ровно 10 HP моба
+
+        assertEquals(1, response.mobsKilled());
+        assertFalse(response.leveledUp(), "фарм-цикл не двигает уровень");
+        assertEquals(1L, response.currentLevel());
+        assertEquals(1, response.currentSubLevel(), "мобы уровня пошли по кругу");
+        assertEquals("10", response.currentMobHpRemaining().display());
+    }
+
+    @Test
+    void goToBossStartsBossFightOnlyOnBossLevels() {
+        authService.register("battle_goto", "password123");
+        Player player = playerRepository.findByUsername("battle_goto").orElseThrow();
+
+        // уровень 4 — босса нет
+        player.setCurrentLevel(4L);
+        player.setMaxLevel(5L);
+        playerRepository.save(player);
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> battleService.goToBoss("battle_goto"));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+
+        // уровень 5 — на босса, таймер пошёл
+        player.setCurrentLevel(5L);
+        player.setCurrentSubLevel(3);
+        player.setCurrentMobHp(EconomyCurves.mobHp(5));
+        playerRepository.save(player);
+        PlayerStateResponse state = battleService.goToBoss("battle_goto");
+
+        assertEquals(10, state.currentSubLevel());
+        assertEquals(EconomyCurves.bossHp(5).toDisplayString(), state.currentMobHp().display());
+        assertTrue(state.bossTimeLeftSeconds() != null && state.bossTimeLeftSeconds() <= 30);
+    }
+
+    @Test
+    void levelNavigationRespectsBounds() {
+        authService.register("battle_nav", "password123");
+        Player player = playerRepository.findByUsername("battle_nav").orElseThrow();
+        player.setCurrentLevel(3L);
+        player.setMaxLevel(3L);
+        playerRepository.save(player);
+
+        PlayerStateResponse back = battleService.changeLevel("battle_nav", -1);
+        assertEquals(2L, back.currentLevel());
+        assertEquals(1, back.currentSubLevel());
+        assertEquals(EconomyCurves.mobHp(2).toDisplayString(), back.currentMobHp().display());
+
+        PlayerStateResponse forward = battleService.changeLevel("battle_nav", 1);
+        assertEquals(3L, forward.currentLevel());
+
+        // выше достигнутого maxLevel нельзя
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> battleService.changeLevel("battle_nav", 1));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
     }
 
     @Test

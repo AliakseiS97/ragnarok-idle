@@ -40,6 +40,21 @@ class HeroServiceTest {
     }
 
     @Test
+    void dpsGrowthIsVisibleFromFirstUpgrade() {
+        authService.register("hero_dps", "password123");
+        Player player = playerRepository.findByUsername("hero_dps").orElseThrow();
+        player.setGold(BigNum.of(1000));
+        playerRepository.save(player);
+
+        heroService.buy("hero_dps", 1L);
+        // ур.1: DPS 5; ур.2: round(5 × 1.1) = 6 — прирост +10% виден сразу (раньше floor съедал его)
+        assertEquals("5", heroService.passiveDpsByHero(player.getId()).get(1L).toDisplayString());
+
+        heroService.upgrade("hero_dps", 1L, 1);
+        assertEquals("6", heroService.passiveDpsByHero(player.getId()).get(1L).toDisplayString());
+    }
+
+    @Test
     void rebalancedSeedMatchesReferenceCurve() {
         authService.register("hero_pricing", "password123");
         Player player = playerRepository.findByUsername("hero_pricing").orElseThrow();

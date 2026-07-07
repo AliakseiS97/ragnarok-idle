@@ -104,8 +104,11 @@ class PlayerServiceTest {
         assertEquals(after12h.currentLevel(), after50h.currentLevel());
         assertEquals(after12h.currentSubLevel(), after50h.currentSubLevel());
         assertEquals(after12h.gold().display(), after50h.gold().display());
-        // а 5ч — строго меньше 12ч
-        assertTrue(after5h.currentLevel() < after12h.currentLevel());
+        // а за 5ч заработано строго меньше, чем за 12ч (уровень может совпасть:
+        // слабый DPS упирается в 30-сек босса 5-го уровня и фармит мобов)
+        double gold5h = toPlain(after5h.gold().mantissa(), after5h.gold().exponent());
+        double gold12h = toPlain(after12h.gold().mantissa(), after12h.gold().exponent());
+        assertTrue(gold5h < gold12h, "12ч фарма должны дать больше золота, чем 5ч");
     }
 
     private PlayerStateResponse registerWithHeroAndSkip(String username, int hours) {

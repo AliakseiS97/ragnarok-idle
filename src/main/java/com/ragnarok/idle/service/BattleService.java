@@ -3,7 +3,9 @@ package com.ragnarok.idle.service;
 import com.ragnarok.idle.domain.Avatar;
 import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.dto.BigNumDto;
+import com.ragnarok.idle.dto.PlayerStateResponse;
 import com.ragnarok.idle.dto.TapResponse;
+import com.ragnarok.idle.economy.EconomyCurves;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
@@ -11,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @Service
 public class BattleService {
@@ -22,12 +26,14 @@ public class BattleService {
     private final PlayerRepository playerRepository;
     private final AvatarRepository avatarRepository;
     private final CombatEngine combatEngine;
+    private final PlayerService playerService;
 
     public BattleService(PlayerRepository playerRepository, AvatarRepository avatarRepository,
-                          CombatEngine combatEngine) {
+                          CombatEngine combatEngine, PlayerService playerService) {
         this.playerRepository = playerRepository;
         this.avatarRepository = avatarRepository;
         this.combatEngine = combatEngine;
+        this.playerService = playerService;
     }
 
     /**
@@ -45,13 +51,13 @@ public class BattleService {
 
     @Transactional
     public TapResponse tap(String username, int taps) {
-        Player player = playerRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
+        Player player = findPlayer(username);
         Avatar avatar = avatarRepository.findById(player.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Avatar missing"));
 
+        combatEngine.syncBossTimer(player, LocalDateTime.now());
         BigNum damagePerTap = tapDamage(avatar);
-        CombatEngine.DamageResult result = combatEngine.applyHits(player, damagePerTap, taps);
+        CombatEngine.DamageResult result = combatEngine.applyHits(player, damagePerTap, taps, false);
         playerRepository.save(player);
 
         return new TapResponse(
@@ -65,5 +71,55 @@ public class BattleService {
                 BigNumDto.from(result.goldGained()),
                 BigNumDto.from(player.getGold())
         );
+    }
+
+    /** «К боссу»: с мобов босс-уровня — на 10-ю подлокацию, таймер 30с пошёл. */
+    @Transactional
+    public PlayerStateResponse goToBoss(String username) {
+        Player player = findPlayer(username);
+        if (!CombatEngine.isBossLevel(player.getCurrentLevel())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No boss on this level");
+        }
+        if (CombatEngine.isBossSlot(player.getCurrentLevel(), player.getCurrentSubLevel())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already fighting the boss");
+        }
+        player.setCurrentSubLevel(EconomyCurves.MOBS_PER_LEVEL);
+        player.setCurrentMobHp(EconomyCurves.bossHp(player.getCurrentLevel()));
+        player.setBossStartedAt(LocalDateTime.now());
+        playerRepository.save(player);
+        return playerService.getState(username);
+    }
+
+    /** Переключение уровня для фарма: delta = -1 (назад) или +1 (вперёд, не выше maxLevel). */
+    @Transactional
+    public PlayerStateResponse changeLevel(String username, int delta) {
+        Player player = findPlayer(username);
+        long targetLevel = player.getCurrentLevel() + delta;
+        if (targetLevel < 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already at the first level");
+        }
+        if (targetLevel > player.getMaxLevel()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Level not unlocked yet");
+        }
+        player.setCurrentLevel(targetLevel);
+        player.setCurrentSubLevel(1);
+        player.setCurrentMobHp(EconomyCurves.mobHp(targetLevel));
+        player.setBossStartedAt(null);
+        playerRepository.save(player);
+        return playerService.getState(username);
+    }
+
+    /** Флаг автоперехода: false — фарм-цикл мобов текущего уровня (босс не атакуется). */
+    @Transactional
+    public PlayerStateResponse setAutoAdvance(String username, boolean enabled) {
+        Player player = findPlayer(username);
+        player.setAutoAdvance(enabled);
+        playerRepository.save(player);
+        return playerService.getState(username);
+    }
+
+    private Player findPlayer(String username) {
+        return playerRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
     }
 }

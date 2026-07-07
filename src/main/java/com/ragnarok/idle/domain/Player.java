@@ -49,6 +49,14 @@ public class Player {
     @Column(name = "current_mob_hp", nullable = false)
     private BigNum currentMobHp;
 
+    /** Автопереход: true — обычная прогрессия (мобы → босс → след. уровень); false — фарм-цикл мобов уровня. */
+    @Column(name = "auto_advance", nullable = false)
+    private Boolean autoAdvance = true;
+
+    /** Начало текущего боя с боссом (таймер 30 сек); null — игрок не на боссе. */
+    @Column(name = "boss_started_at")
+    private LocalDateTime bossStartedAt;
+
     public Long getId() {
         return id;
     }
@@ -127,5 +135,21 @@ public class Player {
 
     public void setCurrentMobHp(BigNum currentMobHp) {
         this.currentMobHp = currentMobHp;
+    }
+
+    public boolean isAutoAdvance() {
+        return Boolean.TRUE.equals(autoAdvance);
+    }
+
+    public void setAutoAdvance(boolean autoAdvance) {
+        this.autoAdvance = autoAdvance;
+    }
+
+    public LocalDateTime getBossStartedAt() {
+        return bossStartedAt;
+    }
+
+    public void setBossStartedAt(LocalDateTime bossStartedAt) {
+        this.bossStartedAt = bossStartedAt;
     }
 }

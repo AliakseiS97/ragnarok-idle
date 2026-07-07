@@ -23,8 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class HeroService {
 
-    /** +8%/уровень (economy_constants.md: "Множ. DPS за ур. героя"). */
-    private static final double DPS_GROWTH = 1.08;
+    /** +10%/уровень (economy_constants.md: "Множ. DPS за ур. героя"; было 1.08 — поднято плейтестом). */
+    private static final double DPS_GROWTH = 1.10;
     /** 15-25%; конкретное число из economy_constants.md ("Бонус бафера/ур."). */
     private static final double BAFFER_STEP = 0.2;
     private static final double SPECIAL_BAFFER_MULT = 3.0;
@@ -79,8 +79,9 @@ public class HeroService {
             bafferBonus *= SPECIAL_BAFFER_MULT;
         }
         double multiplier = 1 + bafferBonus;
-        // floor: DPS каждого героя — целое число (дробных величин в игре нет)
-        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier).floor());
+        // DPS каждого героя — целое; округление до БЛИЖАЙШЕГО, чтобы +10%/ур. был виден
+        // уже на первом апгрейде дешёвых героев (floor съедал 5×1.1=5.5 обратно в 5)
+        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier).add(BigNum.of(0.5)).floor());
         return rawDpsByHero;
     }
 

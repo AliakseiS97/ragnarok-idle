@@ -14,6 +14,8 @@ public record PlayerStateResponse(
         Long autotapLevel,
         BigNumDto tapDamage,
         BigNumDto tapUpgradeCost,
+        Boolean autoAdvance,
+        Long bossTimeLeftSeconds,
         List<PlayerHeroView> heroes
 ) {
 }

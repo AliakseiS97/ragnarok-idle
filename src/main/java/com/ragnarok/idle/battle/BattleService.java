@@ -15,10 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class BattleService {
 
-    /** baseTap=1 (economy_constants.md: "Базовый урон/тап"). */
-    private static final BigNum BASE_TAP = BigNum.ONE;
-    /** Целый шаг (был 0.5): урон/тап = 1, 2, 3, ... — дробных чисел в игре нет. */
-    private static final double TAP_UPGRADE_STEP = 1;
+    /** С этого уровня тапа открыто умение «+10% к урону за клик» (10-е улучшение, GDD §3.4). */
+    public static final long CLICK_SKILL_LEVEL = 10;
+    private static final double CLICK_SKILL_MULT = 1.1;
 
     private final PlayerRepository playerRepository;
     private final AvatarRepository avatarRepository;
@@ -31,9 +30,17 @@ public class BattleService {
         this.combatEngine = combatEngine;
     }
 
-    /** Урон одного тапа Аватара (GDD §3.4; криты — позже). */
+    /**
+     * Урон одного тапа Аватара = уровень тапа (ур.1 → 1, ур.9 → 9, GDD §3.4);
+     * с ур.10 действует умение ×1.1 (целые числа: floor, ур.10 → 11).
+     */
     public static BigNum tapDamage(Avatar avatar) {
-        return BASE_TAP.multiply(1 + avatar.getTapDamageLevel() * TAP_UPGRADE_STEP);
+        long level = Math.max(1, avatar.getTapDamageLevel());
+        BigNum damage = BigNum.of(level);
+        if (level >= CLICK_SKILL_LEVEL) {
+            damage = damage.multiply(CLICK_SKILL_MULT).floor();
+        }
+        return damage;
     }
 
     @Transactional
@@ -43,12 +50,12 @@ public class BattleService {
         Avatar avatar = avatarRepository.findById(player.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Avatar missing"));
 
-        BigNum damageDealt = tapDamage(avatar).multiply(taps);
-        CombatEngine.DamageResult result = combatEngine.applyDamage(player, damageDealt);
+        BigNum damagePerTap = tapDamage(avatar);
+        CombatEngine.DamageResult result = combatEngine.applyHits(player, damagePerTap, taps);
         playerRepository.save(player);
 
         return new TapResponse(
-                BigNumDto.from(damageDealt),
+                BigNumDto.from(damagePerTap.multiply(taps)),
                 result.mobsKilled(),
                 result.bossDefeated(),
                 result.leveledUp(),

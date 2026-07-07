@@ -187,9 +187,12 @@ public final class BigNum implements Comparable<BigNum> {
         if (isZero()) return "0";
         if (exponent < 3) {
             double plain = mantissa * Math.pow(10, exponent);
-            return (plain == Math.floor(plain))
-                    ? String.valueOf((long) plain)
-                    : String.format(Locale.ROOT, "%.2f", plain);
+            long rounded = Math.round(plain);
+            // допуск на float-артефакты нормализации (1.09×10^2 = 109.00000000000001 -> "109")
+            if (Math.abs(plain - rounded) < 1e-9) {
+                return String.valueOf(rounded);
+            }
+            return String.format(Locale.ROOT, "%.2f", plain);
         }
         String[] shortUnits = {"", "K", "M", "B", "T"};
         long tier = exponent / 3;

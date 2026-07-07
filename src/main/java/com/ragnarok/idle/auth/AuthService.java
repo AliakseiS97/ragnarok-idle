@@ -51,7 +51,8 @@ public class AuthService {
 
         Avatar avatar = new Avatar();
         avatar.setPlayerId(player.getId());
-        avatar.setTapDamageLevel(0L);
+        // урон/тап = уровень тапа (GDD §3.4): старт с ур.1 -> урон 1
+        avatar.setTapDamageLevel(1L);
         avatar.setAutotapLevel(0L);
         avatarRepository.save(avatar);
 

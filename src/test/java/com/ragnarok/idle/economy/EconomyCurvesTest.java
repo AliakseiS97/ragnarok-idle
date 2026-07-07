@@ -6,22 +6,41 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Сверка полосной HP-кривой с контрольными точками из economy_constants.md ("Кривая до 50k"). */
+/** Сверка непрерывной HP-кривой с ориентирами плейтеста и контрольными точками (economy_constants.md). */
 class EconomyCurvesTest {
 
     @Test
-    void mobHpMatchesReferenceCheckpoints() {
-        assertEquals(1.0, EconomyCurves.mobHp(1).log10(), 0.01);
-        assertEquals(27.0, EconomyCurves.mobHp(10_000).log10(), 0.1);
-        assertEquals(113.4, EconomyCurves.mobHp(30_000).log10(), 0.1);
-        assertEquals(348.4, EconomyCurves.mobHp(50_000).log10(), 0.1);
+    void mobHpMatchesPlaytestAnchors() {
+        // Ориентиры: ур.1=10, ур.2=26, ур.3=45, ур.4=68, ур.5=93 (floor(10 × L^1.375 × 1.006^(L-1)))
+        assertEquals(10.0, toPlain(EconomyCurves.mobHp(1)), 0.0001);
+        assertEquals(26.0, toPlain(EconomyCurves.mobHp(2)), 0.0001);
+        assertEquals(45.0, toPlain(EconomyCurves.mobHp(3)), 0.0001);
+        assertEquals(68.0, toPlain(EconomyCurves.mobHp(4)), 0.0001);
+        assertEquals(93.0, toPlain(EconomyCurves.mobHp(5)), 0.0001);
     }
 
     @Test
-    void bossHpIsMobHpTimes18() {
-        // Таймер-босс x18 (снижено с 25 балансировкой Спринта 1, см. economy_constants.md)
-        BigNum ratio = EconomyCurves.bossHp(500).divide(EconomyCurves.mobHp(500));
-        assertEquals(18.0, toPlain(ratio), 0.0001);
+    void mobHpMatchesReferenceCheckpoints() {
+        // Кривая до 50k (economy_constants.md): log10(HP) = 1 + 1.375×log10(L) + вклад полос
+        assertEquals(32.5, EconomyCurves.mobHp(10_000).log10(), 0.1);
+        assertEquals(119.6, EconomyCurves.mobHp(30_000).log10(), 0.1);
+        assertEquals(354.8, EconomyCurves.mobHp(50_000).log10(), 0.1);
+    }
+
+    @Test
+    void mobHpNeverDropsBetweenLevels() {
+        // Непрерывный рост: после босса (каждый 5-й уровень) HP следующего уровня не падает.
+        for (long level = 1; level < 30; level++) {
+            assertTrue(EconomyCurves.mobHp(level + 1).gte(EconomyCurves.mobHp(level)),
+                    "HP упало между ур." + level + " и " + (level + 1));
+        }
+    }
+
+    @Test
+    void bossHpIsMobHpTimes12() {
+        // Босс каждого 5-го уровня: ×12 к обычному мобу (ориентир ×10-15)
+        BigNum ratio = EconomyCurves.bossHp(5).divide(EconomyCurves.mobHp(5));
+        assertEquals(12.0, toPlain(ratio), 0.0001);
     }
 
     @Test

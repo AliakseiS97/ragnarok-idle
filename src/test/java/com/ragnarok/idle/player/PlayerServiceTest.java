@@ -71,12 +71,13 @@ class PlayerServiceTest {
 
         PlayerStateResponse state = playerService.getState("idle_online");
 
-        // 5 DPS x 30с = 150 урона: 10 мобов x10 HP убиты (100), остаток 50 уходит в босса (180 HP).
-        assertEquals(1L, state.currentLevel());
-        assertEquals(11, state.currentSubLevel(), "без единого тапа дошли до босса уровня");
-        assertEquals("50", state.gold().display(), "золото за 10 убитых мобов x5");
+        // 30 ударов по 5 DPS: ур.1 (мобы 10 HP, 2 удара/моб) — 10 мобов за 20 ударов -> уровень 2.
+        // Ур.2 (мобы 26 HP): 6 ударов добивают 1-го моба (излишек сгорает), 4 удара x5 во 2-го -> 26-20=6.
+        assertEquals(2L, state.currentLevel(), "без единого тапа пройден уровень");
+        assertEquals(2, state.currentSubLevel());
+        assertEquals("62", state.gold().display(), "10 мобов ур.1 x5 + 1 моб ур.2 x12");
         assertEquals("0", state.offlineGoldCollected().display(), "онлайн-тик — не офлайн-доход");
-        assertEquals("130", state.currentMobHp().display(), "босс 180 HP минус 50 перенесённого урона");
+        assertEquals("6", state.currentMobHp().display());
     }
 
     @Test

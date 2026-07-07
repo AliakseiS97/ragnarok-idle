@@ -198,7 +198,7 @@
     </div>
 
     <div id="battleArea">
-        <div id="mobInfo">Этаж - · моб -/11 · HP: -</div>
+        <div id="mobInfo">Этаж - · моб -/10 · HP: -</div>
         <button id="tapButton">👹</button>
         <div id="tapFeedback"></div>
     </div>
@@ -308,12 +308,18 @@
         api('/player/me', 'GET').then(renderState).catch(function (err) { showError(err.message); });
     }
 
+    // босс — 10-я подлокация каждого 5-го этажа
+    function mobLabel(level, subLevel, hpDisplay) {
+        var isBoss = level % 5 === 0 && subLevel === 10;
+        return 'Этаж ' + level + ' · ' + (isBoss ? '👑 БОСС' : 'моб ' + subLevel + '/10') + ' · HP: ' + hpDisplay;
+    }
+
     function renderState(state) {
         document.getElementById('stLevel').textContent = state.currentLevel;
         document.getElementById('stGold').textContent = state.gold.display;
         document.getElementById('stAsh').textContent = state.ash.display;
         document.getElementById('mobInfo').textContent =
-            'Этаж ' + state.currentLevel + ' · моб ' + state.currentSubLevel + '/11 · HP: ' + state.currentMobHp.display;
+            mobLabel(state.currentLevel, state.currentSubLevel, state.currentMobHp.display);
 
         var totalDps = state.heroes.reduce(function (sum, h) { return sum + (h.owned ? h.dps.mantissa * Math.pow(10, h.dps.exponent) : 0); }, 0);
         document.getElementById('stDps').textContent = totalDps > 0 ? String(Math.floor(totalDps)) : '0';
@@ -390,7 +396,7 @@
             document.getElementById('stLevel').textContent = res.currentLevel;
             document.getElementById('stGold').textContent = res.goldTotal.display;
             document.getElementById('mobInfo').textContent =
-                'Этаж ' + res.currentLevel + ' · моб ' + res.currentSubLevel + '/11 · HP: ' + res.currentMobHpRemaining.display;
+                mobLabel(res.currentLevel, res.currentSubLevel, res.currentMobHpRemaining.display);
         }).catch(function (err) { showError(err.message); });
     });
 

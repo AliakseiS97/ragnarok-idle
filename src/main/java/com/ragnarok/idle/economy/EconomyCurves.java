@@ -3,7 +3,7 @@ package com.ragnarok.idle.economy;
 import com.ragnarok.idle.math.BigNum;
 
 /**
- * Полосная HP-кривая и золото (GDD §3.2/§3.3, числа — economy_constants.md).
+ * Кривые HP и золота (GDD §3.2/§3.3, числа — economy_constants.md).
  * Общий пул для кликера, AFK-дохода и перерождения — не дублируем формулы по сервисам.
  */
 public final class EconomyCurves {
@@ -11,16 +11,23 @@ public final class EconomyCurves {
     private EconomyCurves() {
     }
 
+    /** Уровень = строго 10 подлокаций-мобов (GDD §3.1); на каждом 5-м уровне 10-я подлокация — босс. */
     public static final int MOBS_PER_LEVEL = 10;
 
     private static final BigNum BASE_HP = BigNum.of(10);
     private static final BigNum BASE_GOLD = BigNum.of(5);
 
+    /**
+     * Степенной множитель непрерывного роста HP: подобран по ориентирам плейтеста
+     * (ур.1=10, ур.2=26, ур.3=45, ур.4=68 — точно ложатся на 10 × L^1.375).
+     */
+    private static final double HP_LEVEL_POWER = 1.375;
+
     /** золото = HP-множитель^0.97 (отставание золота от HP, economy_constants.md). */
     private static final double GOLD_LAG_EXPONENT = 0.97;
 
-    /** HP таймер-босса = mobHP × 18 (было 25 — снижено ~28% балансировкой Спринта 1; щит-босс ×25 остаётся, §3.6). */
-    private static final double BOSS_HP_MULT = 18;
+    /** HP босса (10-я подлокация каждого 5-го уровня) = mobHP × 12 (ориентир ×10-15). */
+    private static final double BOSS_HP_MULT = 12;
 
     /** Бонус золота с босса — из GDD §3.3, в economy_constants.md отдельно не указан. */
     private static final double BOSS_GOLD_BONUS = 10;
@@ -38,11 +45,15 @@ public final class EconomyCurves {
             new Band(45_001, 50_000, 1.05),
     };
 
-    /** HP одного моба на уровне level (все 10 мобов уровня одинаковы). Целое — дробных HP в игре нет. */
+    /**
+     * HP одного моба на уровне level (все 10 мобов уровня одинаковы). Целое — дробных HP в игре нет.
+     * Непрерывная кривая: floor(baseHP × L^1.375 × полосные множители) — после босса HP не падает,
+     * полосы сохраняют «стену» на 50k (~10^355).
+     */
     public static BigNum mobHp(long level) {
         if (level <= 1) return BASE_HP;
+        BigNum result = BASE_HP.multiply(BigNum.of(level).pow(HP_LEVEL_POWER));
         long remaining = level - 1;
-        BigNum result = BASE_HP;
         for (Band band : BANDS) {
             if (remaining <= 0) break;
             long steps = Math.min(remaining, band.capacity());
@@ -57,7 +68,7 @@ public final class EconomyCurves {
         return result.floor();
     }
 
-    /** HP таймер-босса в конце уровня level (целое: целый mobHp × целый множитель). */
+    /** HP босса на уровне level (целое: целый mobHp × целый множитель). */
     public static BigNum bossHp(long level) {
         return mobHp(level).multiply(BOSS_HP_MULT);
     }
@@ -68,7 +79,7 @@ public final class EconomyCurves {
         return BASE_GOLD.multiply(ratio.pow(GOLD_LAG_EXPONENT)).floor();
     }
 
-    /** Золото за убитого таймер-босса на уровне level (целое: целое goldPerMob × целый бонус). */
+    /** Золото за убитого босса на уровне level (целое: целое goldPerMob × целый бонус). */
     public static BigNum bossGold(long level) {
         return goldPerMob(level).multiply(BOSS_GOLD_BONUS);
     }

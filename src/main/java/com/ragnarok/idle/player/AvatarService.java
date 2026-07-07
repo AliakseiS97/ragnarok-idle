@@ -1,5 +1,6 @@
 package com.ragnarok.idle.player;
 
+import com.ragnarok.idle.battle.BattleService;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.math.BigNumDto;
 import com.ragnarok.idle.player.dto.AvatarUpgradeResponse;
@@ -12,14 +13,28 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AvatarService {
 
-    /** Цена 1-го апгрейда тапа Аватара = 5 (economy_constants.md). */
+    /** Цена 1-го апгрейда тапа (ур.1 → 2) = 5 (economy_constants.md). */
     private static final BigNum BASE_UPGRADE_COST = BigNum.of(5);
-    /** "Множ. цены апгрейда" = 1.07 (economy_constants.md) — тот же рост, что у героев. */
-    private static final double UPGRADE_COST_GROWTH = 1.07;
+    /** Рост цены апгрейда Аватара ×1.15 — стандарт жанра; свой множитель в economy_constants.md не задан. */
+    private static final double UPGRADE_COST_GROWTH = 1.15;
+    /** 10-е улучшение тапа (ур.9 → 10) открывает умение +10% к клику и стоит фикс 109 (economy_constants.md). */
+    private static final BigNum SKILL_UPGRADE_COST = BigNum.of(109);
 
-    /** Цена следующего апгрейда ветки Аватара с уровня currentLevel: ceil(5 × 1.07^currentLevel) — целая. */
+    /**
+     * Цена апгрейда ветки Аватара с уровня currentLevel на следующий (целая, ceil):
+     * до умения — 5 × 1.15^(ур-1); ур.9 → 10 — фикс 109; дальше — 109 × 1.15^(ур-9), монотонно.
+     */
     public static BigNum upgradeCostFrom(long currentLevel) {
-        return BASE_UPGRADE_COST.multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(currentLevel)).ceil();
+        long level = Math.max(currentLevel, 1);
+        if (level + 1 == BattleService.CLICK_SKILL_LEVEL) {
+            return SKILL_UPGRADE_COST;
+        }
+        if (level >= BattleService.CLICK_SKILL_LEVEL) {
+            return SKILL_UPGRADE_COST
+                    .multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(level - BattleService.CLICK_SKILL_LEVEL + 1))
+                    .ceil();
+        }
+        return BASE_UPGRADE_COST.multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(level - 1)).ceil();
     }
 
     private final PlayerRepository playerRepository;

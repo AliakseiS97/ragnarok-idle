@@ -131,7 +131,8 @@ public class PlayerService {
         }
 
         if (elapsedSeconds <= ONLINE_TICK_MAX_SECONDS) {
-            combatEngine.applyDamage(player, totalPassiveDps.multiply(elapsedSeconds));
+            // каждая секунда DPS — отдельный удар (без переноса урона между мобами)
+            combatEngine.applyHits(player, totalPassiveDps, elapsedSeconds);
             return BigNum.ZERO;
         }
 

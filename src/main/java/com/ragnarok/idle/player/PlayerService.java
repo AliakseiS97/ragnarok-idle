@@ -109,6 +109,28 @@ public class PlayerService {
     }
 
     /**
+     * ТЕСТОВАЯ прокрутка времени: мгновенно начисляет idle-прогресс, как будто прошло hours часов
+     * (с потолком офлайна 12ч, GDD §12.5). DPS прогоняется ударами через CombatEngine — золото
+     * начисляется И уровни проходятся. Позже станет игровой механикой за Яблоки Идунн.
+     */
+    @Transactional
+    public PlayerStateResponse skipTime(String username, int hours) {
+        Player player = playerRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
+
+        BigNum totalPassiveDps = heroService.totalPassiveDps(player.getId());
+        long cappedSeconds = Math.min(hours * 3600L, OFFLINE_CAP_SECONDS);
+        if (!totalPassiveDps.isZero()) {
+            // каждая секунда DPS — отдельный удар, как в онлайн-тике
+            combatEngine.applyHits(player, totalPassiveDps, cappedSeconds);
+        }
+        player.setLastCollectedAt(LocalDateTime.now());
+        playerRepository.save(player);
+
+        return getState(username);
+    }
+
+    /**
      * Пассивный DPS героев (GDD §3.5) за время с прошлого обращения:
      * - короткая пауза (≤{@link #ONLINE_TICK_MAX_SECONDS}) — DPS наносится уроном через
      *   {@link CombatEngine}: убивает мобов/боссов и двигает уровни, как тапы;

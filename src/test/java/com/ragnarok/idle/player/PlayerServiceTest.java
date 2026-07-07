@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class PlayerServiceTest {
@@ -90,6 +91,34 @@ class PlayerServiceTest {
         PlayerStateResponse state = playerService.getState("afk_none");
 
         assertEquals("0", state.offlineGoldCollected().display());
+    }
+
+    @Test
+    void skipTimeAdvancesLevelsAndIsCappedAtTwelveHours() {
+        PlayerStateResponse after50h = registerWithHeroAndSkip("skip_50", 50);
+        PlayerStateResponse after12h = registerWithHeroAndSkip("skip_12", 12);
+        PlayerStateResponse after5h = registerWithHeroAndSkip("skip_5", 5);
+
+        // прокрутка проносит уровни, а не только капает золотом
+        assertTrue(after5h.currentLevel() > 1, "за 5ч DPS должен пройти уровни, был " + after5h.currentLevel());
+        // 50ч упирается в потолок 12ч (GDD §12.5): прогресс идентичен 12-часовому
+        assertEquals(after12h.currentLevel(), after50h.currentLevel());
+        assertEquals(after12h.currentSubLevel(), after50h.currentSubLevel());
+        assertEquals(after12h.gold().display(), after50h.gold().display());
+        // а 5ч — строго меньше 12ч
+        assertTrue(after5h.currentLevel() < after12h.currentLevel());
+    }
+
+    private PlayerStateResponse registerWithHeroAndSkip(String username, int hours) {
+        authService.register(username, "password123");
+        Player player = playerRepository.findByUsername(username).orElseThrow();
+        PlayerHero hero = new PlayerHero();
+        hero.setPlayerId(player.getId());
+        hero.setHeroId(1L);
+        hero.setLevel(1L);
+        hero.setActivated(true);
+        playerHeroRepository.save(hero);
+        return playerService.skipTime(username, hours);
     }
 
     private static double toPlain(double mantissa, long exponent) {

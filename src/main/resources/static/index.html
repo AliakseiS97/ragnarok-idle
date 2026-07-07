@@ -207,6 +207,11 @@
         <button id="rebirthButton">🔥 Перерождение</button>
     </div>
 
+    <div id="skipArea" style="text-align:center; margin-bottom: 10px;">
+        <button id="skip5Button">⏩ Прокрутить 5 часов (тест)</button>
+        <button id="skip50Button">⏩ Прокрутить 50 часов (тест)</button>
+    </div>
+
     <div id="avatarPanel" class="hero-panel">
         <h2>Аватар</h2>
         <div class="hero-row" id="avatarRow">
@@ -399,6 +404,17 @@
                 mobLabel(res.currentLevel, res.currentSubLevel, res.currentMobHpRemaining.display);
         }).catch(function (err) { showError(err.message); });
     });
+
+    // ---- тестовая прокрутка времени (потом — Яблоки Идунн) ----
+    function skipTime(hours) {
+        api('/debug/skip-time', 'POST', { hours: hours }).then(function (state) {
+            renderState(state);
+            showToast('Прокручено ' + hours + 'ч (потолок 12ч) · этаж ' + state.currentLevel +
+                ' · золото ' + state.gold.display, true);
+        }).catch(function (err) { showError(err.message); });
+    }
+    document.getElementById('skip5Button').addEventListener('click', function () { skipTime(5); });
+    document.getElementById('skip50Button').addEventListener('click', function () { skipTime(50); });
 
     // ---- rebirth ----
     document.getElementById('rebirthButton').addEventListener('click', function () {

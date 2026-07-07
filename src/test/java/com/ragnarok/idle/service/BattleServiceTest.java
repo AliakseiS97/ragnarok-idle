@@ -165,6 +165,27 @@ class BattleServiceTest {
     }
 
     @Test
+    void goToBossCannotReachLevelBeyondMaxLevel() {
+        authService.register("battle_goto_locked", "password123");
+        Player player = playerRepository.findByUsername("battle_goto_locked").orElseThrow();
+
+        // maxLevel=4 — уровень 5 (с боссом) ещё не пройден, currentLevel не может быть выше него,
+        // а значит и "К боссу" не может утащить игрока на непройденный уровень.
+        player.setCurrentLevel(4L);
+        player.setMaxLevel(4L);
+        playerRepository.save(player);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> battleService.goToBoss("battle_goto_locked"));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode(), "на уровне 4 босса нет — переход запрещён");
+
+        // попытка вручную переключиться на непройденный 5-й уровень тоже отклоняется
+        ResponseStatusException navEx = assertThrows(ResponseStatusException.class,
+                () -> battleService.changeLevel("battle_goto_locked", 1));
+        assertEquals(HttpStatus.CONFLICT, navEx.getStatusCode());
+    }
+
+    @Test
     void levelNavigationRespectsBounds() {
         authService.register("battle_nav", "password123");
         Player player = playerRepository.findByUsername("battle_nav").orElseThrow();

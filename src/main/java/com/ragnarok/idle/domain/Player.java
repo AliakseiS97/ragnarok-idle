@@ -41,7 +41,10 @@ public class Player {
     @Column(name = "last_collected_at", nullable = false)
     private LocalDateTime lastCollectedAt;
 
-    /** Позиция в текущем уровне: 1..10 — обычные мобы, 11 — таймер-босс. */
+    /**
+     * Позиция в текущем уровне: 1..10 — все подлокации; на каждом 5-м уровне 10-я подлокация —
+     * таймер-босс (не отдельный 11-й слот, {@link com.ragnarok.idle.service.CombatEngine#isBossSlot}).
+     */
     @Column(name = "current_sub_level", nullable = false)
     private Integer currentSubLevel;
 

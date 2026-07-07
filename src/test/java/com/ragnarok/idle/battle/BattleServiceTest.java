@@ -23,21 +23,21 @@ class BattleServiceTest {
     void partialDamageDoesNotKillMob() {
         authService.register("battle_partial", "password123");
 
-        // baseTap=3, mobHP(1)=10 -> одного тапа недостаточно, чтобы убить.
+        // baseTap=1, mobHP(1)=10 -> одного тапа недостаточно, чтобы убить.
         TapResponse response = battleService.tap("battle_partial", 1);
 
         assertEquals(0, response.mobsKilled());
         assertFalse(response.leveledUp());
         assertEquals(1, response.currentSubLevel());
-        assertEquals("7", response.currentMobHpRemaining().display());
+        assertEquals("9", response.currentMobHpRemaining().display());
     }
 
     @Test
     void lethalTapsKillMobAndCarryOverDamage() {
         authService.register("battle_kill", "password123");
 
-        // 4 тапа = 12 урона: убивает 1-го моба (10 HP) и переносит 2 урона на следующего.
-        TapResponse response = battleService.tap("battle_kill", 4);
+        // 12 тапов x1 = 12 урона: убивает 1-го моба (10 HP) и переносит 2 урона на следующего.
+        TapResponse response = battleService.tap("battle_kill", 12);
 
         assertEquals(1, response.mobsKilled());
         assertEquals(1L, response.currentLevel());
@@ -50,8 +50,8 @@ class BattleServiceTest {
     void enoughDamageDefeatsBossAndLevelsUp() {
         authService.register("battle_boss", "password123");
 
-        // Уровень 1: 10 мобов x10 HP + босс (mobHP*25=250) = 350 HP. 120 тапов x3 = 360 урона - с запасом.
-        TapResponse response = battleService.tap("battle_boss", 120);
+        // Уровень 1: 10 мобов x10 HP + босс (mobHP*18=180) = 280 HP. 300 тапов x1 = 300 урона - с запасом.
+        TapResponse response = battleService.tap("battle_boss", 300);
 
         assertTrue(response.bossDefeated());
         assertTrue(response.leveledUp());

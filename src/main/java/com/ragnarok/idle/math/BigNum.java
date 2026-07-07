@@ -142,6 +142,13 @@ public final class BigNum implements Comparable<BigNum> {
         return BigNum.of(Math.floor(plain));
     }
 
+    /** Округление вверх до целого — для цен (магазин не продешевит). Аналогично {@link #floor()}. */
+    public BigNum ceil() {
+        if (this.exponent >= 15) return this;
+        double plain = mantissa * Math.pow(10, exponent);
+        return BigNum.of(Math.ceil(plain));
+    }
+
     // ---------- Сравнение ----------
 
     @Override

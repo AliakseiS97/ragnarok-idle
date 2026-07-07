@@ -12,10 +12,15 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AvatarService {
 
-    /** "Цена 1-го героя" (economy_constants.md) переиспользуна как база апгрейда Аватара — своей цены в доке нет. */
-    private static final BigNum BASE_UPGRADE_COST = BigNum.of(10);
-    /** "Множ. цены апгрейда" = 1.07 (economy_constants.md). */
+    /** Цена 1-го апгрейда тапа Аватара = 5 (economy_constants.md). */
+    private static final BigNum BASE_UPGRADE_COST = BigNum.of(5);
+    /** "Множ. цены апгрейда" = 1.07 (economy_constants.md) — тот же рост, что у героев. */
     private static final double UPGRADE_COST_GROWTH = 1.07;
+
+    /** Цена следующего апгрейда ветки Аватара с уровня currentLevel: ceil(5 × 1.07^currentLevel) — целая. */
+    public static BigNum upgradeCostFrom(long currentLevel) {
+        return BASE_UPGRADE_COST.multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(currentLevel)).ceil();
+    }
 
     private final PlayerRepository playerRepository;
     private final AvatarRepository avatarRepository;
@@ -56,7 +61,7 @@ public class AvatarService {
     private BigNum spendGoldForLevels(Player player, long currentLevel, long levels) {
         BigNum totalCost = BigNum.ZERO;
         for (long i = 0; i < levels; i++) {
-            totalCost = totalCost.add(BASE_UPGRADE_COST.multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(currentLevel + i)));
+            totalCost = totalCost.add(upgradeCostFrom(currentLevel + i));
         }
 
         if (player.getGold().lt(totalCost)) {

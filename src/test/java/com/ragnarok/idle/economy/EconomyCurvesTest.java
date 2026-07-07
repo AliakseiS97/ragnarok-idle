@@ -18,9 +18,10 @@ class EconomyCurvesTest {
     }
 
     @Test
-    void bossHpIsMobHpTimes25() {
+    void bossHpIsMobHpTimes18() {
+        // Таймер-босс x18 (снижено с 25 балансировкой Спринта 1, см. economy_constants.md)
         BigNum ratio = EconomyCurves.bossHp(500).divide(EconomyCurves.mobHp(500));
-        assertEquals(25.0, toPlain(ratio), 0.0001);
+        assertEquals(18.0, toPlain(ratio), 0.0001);
     }
 
     @Test
@@ -35,6 +36,15 @@ class EconomyCurvesTest {
         double hpGrowthLog = EconomyCurves.mobHp(1000).log10() - EconomyCurves.mobHp(1).log10();
         double goldGrowthLog = EconomyCurves.goldPerMob(1000).log10() - EconomyCurves.goldPerMob(1).log10();
         assertTrue(goldGrowthLog < hpGrowthLog);
+    }
+
+    @Test
+    void curveValuesAreWholeNumbers() {
+        // Дробных чисел в игре нет: HP и золото — целые на любом уровне.
+        for (long level : new long[]{2, 7, 100, 500}) {
+            assertEquals(EconomyCurves.mobHp(level), EconomyCurves.mobHp(level).floor(), "mobHp ур." + level);
+            assertEquals(EconomyCurves.goldPerMob(level), EconomyCurves.goldPerMob(level).floor(), "goldPerMob ур." + level);
+        }
     }
 
     private static double toPlain(BigNum value) {

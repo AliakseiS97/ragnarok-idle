@@ -19,8 +19,8 @@ public final class EconomyCurves {
     /** золото = HP-множитель^0.97 (отставание золота от HP, economy_constants.md). */
     private static final double GOLD_LAG_EXPONENT = 0.97;
 
-    /** HP таймер-босса/щит-босса = mobHP × 25 (GDD §3.2/§3.6, совпадает у обоих типов боссов). */
-    private static final double BOSS_HP_MULT = 25;
+    /** HP таймер-босса = mobHP × 18 (было 25 — снижено ~28% балансировкой Спринта 1; щит-босс ×25 остаётся, §3.6). */
+    private static final double BOSS_HP_MULT = 18;
 
     /** Бонус золота с босса — из GDD §3.3, в economy_constants.md отдельно не указан. */
     private static final double BOSS_GOLD_BONUS = 10;
@@ -38,7 +38,7 @@ public final class EconomyCurves {
             new Band(45_001, 50_000, 1.05),
     };
 
-    /** HP одного моба на уровне level (все 10 мобов уровня одинаковы). */
+    /** HP одного моба на уровне level (все 10 мобов уровня одинаковы). Целое — дробных HP в игре нет. */
     public static BigNum mobHp(long level) {
         if (level <= 1) return BASE_HP;
         long remaining = level - 1;
@@ -54,21 +54,21 @@ public final class EconomyCurves {
             double lastMult = BANDS[BANDS.length - 1].mult();
             result = result.multiply(BigNum.of(lastMult).pow(remaining));
         }
-        return result;
+        return result.floor();
     }
 
-    /** HP таймер-босса в конце уровня level. */
+    /** HP таймер-босса в конце уровня level (целое: целый mobHp × целый множитель). */
     public static BigNum bossHp(long level) {
         return mobHp(level).multiply(BOSS_HP_MULT);
     }
 
-    /** Золото за одного убитого моба на уровне level. */
+    /** Золото за одного убитого моба на уровне level. Целое — золото не дробится. */
     public static BigNum goldPerMob(long level) {
         BigNum ratio = mobHp(level).divide(BASE_HP);
-        return BASE_GOLD.multiply(ratio.pow(GOLD_LAG_EXPONENT));
+        return BASE_GOLD.multiply(ratio.pow(GOLD_LAG_EXPONENT)).floor();
     }
 
-    /** Золото за убитого таймер-босса на уровне level. */
+    /** Золото за убитого таймер-босса на уровне level (целое: целое goldPerMob × целый бонус). */
     public static BigNum bossGold(long level) {
         return goldPerMob(level).multiply(BOSS_GOLD_BONUS);
     }

@@ -9,6 +9,7 @@ public record PlayerHeroView(
         boolean owned,
         Long level,
         BigNumDto price,
+        BigNumDto upgradeCost,
         BigNumDto dps
 ) {
 }

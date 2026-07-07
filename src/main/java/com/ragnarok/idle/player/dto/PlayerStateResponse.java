@@ -14,6 +14,8 @@ public record PlayerStateResponse(
         BigNumDto offlineGoldCollected,
         Long tapDamageLevel,
         Long autotapLevel,
+        BigNumDto tapDamage,
+        BigNumDto tapUpgradeCost,
         List<PlayerHeroView> heroes
 ) {
 }

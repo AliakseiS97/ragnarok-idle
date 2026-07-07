@@ -32,7 +32,7 @@ class PlayerServiceTest {
         authService.register("afk_cap", "password123");
         Player player = playerRepository.findByUsername("afk_cap").orElseThrow();
 
-        // Герой №1 (Трэлл, baseDps=2) ур.1, без баферов -> totalPassiveDps=2.
+        // Герой №1 (Трэлл, baseDps=5) ур.1, без баферов -> totalPassiveDps=5.
         PlayerHero hero = new PlayerHero();
         hero.setPlayerId(player.getId());
         hero.setHeroId(1L);
@@ -46,10 +46,37 @@ class PlayerServiceTest {
 
         PlayerStateResponse state = playerService.getState("afk_cap");
 
-        // goldPerSecond = totalPassiveDps(2) * goldPerMob(1)/mobHp(1) = 2 * (5/10) = 1 золото/сек.
-        // Потолок 12ч = 43200 сек -> ожидаем 43200 золота, а не 100ч-эквивалент.
+        // goldPerSecond = totalPassiveDps(5) * goldPerMob(1)/mobHp(1) = 5 * (5/10) = 2.5 золота/сек.
+        // Потолок 12ч = 43200 сек -> ожидаем 108000 золота, а не 100ч-эквивалент.
         double offlineGold = toPlain(state.offlineGoldCollected().mantissa(), state.offlineGoldCollected().exponent());
-        assertEquals(43200.0, offlineGold, 1.0);
+        assertEquals(108000.0, offlineGold, 5.0);
+    }
+
+    @Test
+    void passiveDpsKillsMobsAndAdvancesProgressWhileOnline() {
+        authService.register("idle_online", "password123");
+        Player player = playerRepository.findByUsername("idle_online").orElseThrow();
+
+        // Герой №1 (baseDps=5) ур.1 -> totalPassiveDps=5.
+        PlayerHero hero = new PlayerHero();
+        hero.setPlayerId(player.getId());
+        hero.setHeroId(1L);
+        hero.setLevel(1L);
+        hero.setActivated(true);
+        playerHeroRepository.save(hero);
+
+        // Пауза 30с (<= онлайн-порога): DPS должен бить мобов, а не капать золотом по формуле офлайна.
+        player.setLastCollectedAt(LocalDateTime.now().minusSeconds(30));
+        playerRepository.save(player);
+
+        PlayerStateResponse state = playerService.getState("idle_online");
+
+        // 5 DPS x 30с = 150 урона: 10 мобов x10 HP убиты (100), остаток 50 уходит в босса (180 HP).
+        assertEquals(1L, state.currentLevel());
+        assertEquals(11, state.currentSubLevel(), "без единого тапа дошли до босса уровня");
+        assertEquals("50", state.gold().display(), "золото за 10 убитых мобов x5");
+        assertEquals("0", state.offlineGoldCollected().display(), "онлайн-тик — не офлайн-доход");
+        assertEquals("130", state.currentMobHp().display(), "босс 180 HP минус 50 перенесённого урона");
     }
 
     @Test

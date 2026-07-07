@@ -75,7 +75,8 @@ public class HeroService {
             bafferBonus *= SPECIAL_BAFFER_MULT;
         }
         double multiplier = 1 + bafferBonus;
-        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier));
+        // floor: DPS каждого героя — целое число (дробных величин в игре нет)
+        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier).floor());
         return rawDpsByHero;
     }
 
@@ -105,6 +106,11 @@ public class HeroService {
                 BigNumDto.from(hero.getPrice()), BigNumDto.from(player.getGold()));
     }
 
+    /** Цена апгрейда героя с уровня currentLevel на следующий: ceil(цена найма × 1.07^(currentLevel-1)) — целая. */
+    public static BigNum upgradeCostFrom(Hero hero, long currentLevel) {
+        return hero.getPrice().multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(currentLevel - 1)).ceil();
+    }
+
     @Transactional
     public PlayerHeroResponse upgrade(String username, Long heroId, long levels) {
         Player player = findPlayer(username);
@@ -114,8 +120,7 @@ public class HeroService {
 
         BigNum totalCost = BigNum.ZERO;
         for (long i = 0; i < levels; i++) {
-            long levelBeingBought = playerHero.getLevel() + i;
-            totalCost = totalCost.add(hero.getPrice().multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(levelBeingBought - 1)));
+            totalCost = totalCost.add(upgradeCostFrom(hero, playerHero.getLevel() + i));
         }
 
         if (player.getGold().lt(totalCost)) {

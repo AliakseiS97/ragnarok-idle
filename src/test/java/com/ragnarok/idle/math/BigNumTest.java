@@ -49,6 +49,18 @@ class BigNumTest {
     }
 
     @Test
+    @DisplayName("floor/ceil дают целые: величины — вниз, цены — вверх")
+    void floorAndCeilRounding() {
+        assertEquals("53", BigNum.of(53.5).floor().toDisplayString());
+        assertEquals("54", BigNum.of(53.5).ceil().toDisplayString());
+        assertEquals("50", BigNum.of(50).ceil().toDisplayString(), "целое не меняется");
+        // за пределами точности double дробной части нет — число возвращается как есть
+        BigNum huge = BigNum.ofMantissaExp(1.23, 40);
+        assertEquals(huge, huge.floor());
+        assertEquals(huge, huge.ceil());
+    }
+
+    @Test
     @DisplayName("Деление больших чисел")
     void divideHuge() {
         BigNum a = BigNum.ofMantissaExp(6, 300);

@@ -30,7 +30,7 @@ class AvatarServiceTest {
     @Test
     void upgradeTapDamageWithoutEnoughGoldIsRejected() {
         authService.register("tap_poor", "password123");
-        // свежий игрок стартует с 0 золота, апгрейд стоит 10.
+        // свежий игрок стартует с 0 золота, апгрейд стоит 5.
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> avatarService.upgradeTapDamage("tap_poor", 1));
@@ -45,13 +45,13 @@ class AvatarServiceTest {
         player.setGold(BigNum.of(1000));
         playerRepository.save(player);
 
-        // цена 1-го уровня = 10 * 1.07^0 = 10, 2-го = 10 * 1.07^1 = 10.7 -> итого 20.7 за 2 уровня.
+        // цена 1-го уровня = 5 * 1.07^0 = 5, 2-го = ceil(5 * 1.07) = 6 -> итого 11 за 2 уровня (цены целые).
         AvatarUpgradeResponse response = avatarService.upgradeTapDamage("tap_rich", 2);
 
         assertEquals(2L, response.tapDamageLevel());
         assertEquals(0L, response.autotapLevel());
-        assertEquals("20.70", response.goldSpent().display());
-        assertEquals("979.30", response.goldRemaining().display());
+        assertEquals("11", response.goldSpent().display());
+        assertEquals("989", response.goldRemaining().display());
 
         Avatar avatar = avatarRepository.findById(player.getId()).orElseThrow();
         assertEquals(2L, avatar.getTapDamageLevel());

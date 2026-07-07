@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 /**
  * Боевая ветка Аватара (фарм). Дуэльные пассивы (HP/крит/броня/рег.) —
@@ -16,6 +17,10 @@ public class Avatar {
     @Id
     @Column(name = "player_id")
     private Long playerId;
+
+    /** Оптимистическая блокировка — см. комментарий у {@link Player#getVersion()}. */
+    @Version
+    private Long version;
 
     @Column(name = "tap_damage_level", nullable = false)
     private Long tapDamageLevel;

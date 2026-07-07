@@ -10,6 +10,7 @@ import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerHeroRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
+import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +72,10 @@ public class RebirthService {
         player.setCurrentMobHp(EconomyCurves.mobHp(1));
         player.setBossStartedAt(null);
         player.setAutoAdvance(true);
+        // сбрасываем сразу, а не ждём следующего getState(): иначе первый тик пассивного DPS после
+        // ребёрта посчитает elapsedSeconds от МОМЕНТА ДО ребёрта — консистентность, не баг по факту
+        // (getState всё равно обновил бы lastCollectedAt на первом же вызове), но так надёжнее.
+        player.setLastCollectedAt(LocalDateTime.now());
         // maxLevel НЕ сбрасываем — исторический рекорд (нужен артефакту +старт-уровня, Спринт 2+).
         playerRepository.save(player);
 

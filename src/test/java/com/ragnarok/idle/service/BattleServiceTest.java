@@ -147,7 +147,7 @@ class BattleServiceTest {
         // уровень 4 — босса нет
         player.setCurrentLevel(4L);
         player.setMaxLevel(5L);
-        playerRepository.save(player);
+        player = playerRepository.save(player); // переприсваиваем — save() мержит и бампает @Version
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> battleService.goToBoss("battle_goto"));
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());

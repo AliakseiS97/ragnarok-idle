@@ -245,6 +245,15 @@
     var pollTimer = null;
     var lastTotalDps = '0';
 
+    // Сиквенс-guard от гонки рендера: поллинг раз в 1с идёт независимо от действий игрока
+    // (ребёрт, тап, покупка героя), и ответ на СТАРЫЙ запрос может прийти ПОСЛЕ ответа на новый —
+    // тогда старые данные (уровень/DPS/золото) перезатирают уже отрисованное свежее состояние
+    // (баг "то появляется, то пропадает" после ребёрта). Правило: рендерим только ответ на
+    // ПОСЛЕДНИЙ ОТПРАВЛЕННЫЙ запрос, а не на первый пришедший.
+    var stateSeq = 0;
+    function beginRequest() { return ++stateSeq; }
+    function isLatest(seq) { return seq === stateSeq; }
+
     var typeIcon = { ACTIVE: '⚔️', PASSIVE: '🛡️', BAFFER: '📯', REBIRTH: '🌌' };
 
     var authScreen = document.getElementById('authScreen');
@@ -316,7 +325,10 @@
 
     // ---- state polling ----
     function refreshState() {
-        api('/player/me', 'GET').then(renderState).catch(function (err) { showError(err.message); });
+        var seq = beginRequest();
+        api('/player/me', 'GET').then(function (state) {
+            if (isLatest(seq)) renderState(state);
+        }).catch(function (err) { showError(err.message); });
     }
 
     // босс — 10-я подлокация каждого 5-го этажа; на него 30 секунд
@@ -419,7 +431,10 @@
 
     // ---- tap ----
     document.getElementById('tapButton').addEventListener('click', function () {
+        var seq = beginRequest();
         api('/battle/tap', 'POST', { taps: 1 }).then(function (res) {
+            if (!isLatest(seq)) return; // ответ устарел (напр. ребёрт уже сбросил состояние) — игнор
+
             var msg = 'Урон ' + res.damageDealt.display + ' · +' + res.goldGained.display + ' золота';
             if (res.ashGained && res.ashGained.display !== '0') msg += ' · 🔥 +' + res.ashGained.display + ' Пепла!';
             if (res.bossDefeated) msg += ' · 👑 Босс повержен!';
@@ -435,7 +450,10 @@
 
     // ---- навигация по уровням, босс, автопереход ----
     function battleAction(path, body) {
-        api(path, 'POST', body).then(renderState).catch(function (err) { showError(err.message); });
+        var seq = beginRequest();
+        api(path, 'POST', body).then(function (state) {
+            if (isLatest(seq)) renderState(state);
+        }).catch(function (err) { showError(err.message); });
     }
     document.getElementById('levelBackButton').addEventListener('click', function () {
         battleAction('/battle/level/back', {});
@@ -452,7 +470,9 @@
 
     // ---- тестовая прокрутка времени (потом — Яблоки Идунн) ----
     function skipTime(hours) {
+        var seq = beginRequest();
         api('/debug/skip-time', 'POST', { hours: hours }).then(function (state) {
+            if (!isLatest(seq)) return;
             renderState(state);
             showToast('Прокручено ' + hours + 'ч (потолок 12ч) · этаж ' + state.currentLevel +
                 ' · золото ' + state.gold.display, true);
@@ -464,10 +484,23 @@
     // ---- rebirth ----
     document.getElementById('rebirthButton').addEventListener('click', function () {
         if (!confirm('Перерождение сбросит ВСЁ: уровень, золото, героев (нанимать заново) и прокачку Аватара — в обмен на Пепел. Продолжить?')) return;
+
+        // останавливаем фоновый поллинг на время ребёрта — иначе тик, отправленный ДО сброса,
+        // может прийти ПОСЛЕ и перезаписать экран старыми данными (см. stateSeq выше)
+        clearInterval(pollTimer);
+        pollTimer = null;
+
+        var seq = beginRequest();
         api('/rebirth', 'POST', {}).then(function (res) {
-            showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
+            if (isLatest(seq)) {
+                showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
+            }
             refreshState();
-        }).catch(function (err) { showError(err.message); });
+        }).catch(function (err) {
+            showError(err.message);
+        }).finally(function () {
+            if (!pollTimer) pollTimer = setInterval(refreshState, 1000);
+        });
     });
 })();
 </script>

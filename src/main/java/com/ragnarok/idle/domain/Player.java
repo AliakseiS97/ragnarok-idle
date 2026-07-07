@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,6 +17,16 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * Оптимистическая блокировка: без неё конкурентные запросы (тап/тик пассивного DPS/ребёрт)
+     * делают read-modify-write по одной и той же строке без проверки версии — "последний записавший
+     * побеждает" и молча теряет чужие изменения (напр. тап, зависший в полёте, может откатить часть
+     * сброса при ребёрте). С @Version конкурентная запись кидает ObjectOptimisticLockingFailureException
+     * вместо тихой потери данных.
+     */
+    @Version
+    private Long version;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -166,5 +177,9 @@ public class Player {
 
     public void setRebirthCount(Long rebirthCount) {
         this.rebirthCount = rebirthCount;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }

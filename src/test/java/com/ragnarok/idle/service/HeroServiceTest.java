@@ -90,6 +90,20 @@ class HeroServiceTest {
     }
 
     @Test
+    void ashGrantsPermanentDpsBonusAfterRebirth() {
+        authService.register("hero_ash", "password123");
+        Player player = playerRepository.findByUsername("hero_ash").orElseThrow();
+        player.setGold(BigNum.of(1000));
+        player.setAsh(BigNum.of(100)); // 100 x 0.3% = +30% к общему DPS
+        playerRepository.save(player);
+
+        heroService.buy("hero_ash", 1L); // Трэлл, dps 5
+
+        // 5 x 1.30 = 6.5 -> округление до ближайшего целого = 7
+        assertEquals("7", heroService.passiveDpsByHero(player.getId()).get(1L).toDisplayString());
+    }
+
+    @Test
     void rebalancedSeedMatchesReferenceCurve() {
         authService.register("hero_pricing", "password123");
         Player player = playerRepository.findByUsername("hero_pricing").orElseThrow();

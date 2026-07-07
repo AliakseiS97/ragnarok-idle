@@ -69,7 +69,8 @@ public class BattleService {
                 player.getCurrentSubLevel(),
                 BigNumDto.from(player.getCurrentMobHp()),
                 BigNumDto.from(result.goldGained()),
-                BigNumDto.from(player.getGold())
+                BigNumDto.from(player.getGold()),
+                BigNumDto.from(result.ashGained())
         );
     }
 

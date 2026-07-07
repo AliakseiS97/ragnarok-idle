@@ -60,6 +60,10 @@ public class Player {
     @Column(name = "boss_started_at")
     private LocalDateTime bossStartedAt;
 
+    /** Сколько раз игрок перерождался. Дроп Пепла с мобов открывается только при rebirthCount >= 1. */
+    @Column(name = "rebirth_count", nullable = false)
+    private Long rebirthCount = 0L;
+
     public Long getId() {
         return id;
     }
@@ -154,5 +158,13 @@ public class Player {
 
     public void setBossStartedAt(LocalDateTime bossStartedAt) {
         this.bossStartedAt = bossStartedAt;
+    }
+
+    public Long getRebirthCount() {
+        return rebirthCount;
+    }
+
+    public void setRebirthCount(Long rebirthCount) {
+        this.rebirthCount = rebirthCount;
     }
 }

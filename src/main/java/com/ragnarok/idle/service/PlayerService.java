@@ -57,10 +57,17 @@ public class PlayerService {
 
     @Transactional
     public PlayerStateResponse getState(String username) {
+        return getState(username, BigNum.ZERO);
+    }
+
+    /** @param extraAsh Пепел, дропнутый ВНЕ этого тика (напр. большой батч {@link #skipTime}) — добавляется к ashDropCollected. */
+    private PlayerStateResponse getState(String username, BigNum extraAsh) {
         Player player = playerRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
 
-        BigNum offlineGold = applyPassiveDps(player);
+        TickResult tick = applyPassiveDps(player);
+        BigNum offlineGold = tick.offlineGold();
+        BigNum ashDropCollected = tick.ashGained().add(extraAsh);
         playerRepository.save(player);
 
         Avatar avatar = avatarRepository.findById(player.getId())
@@ -115,7 +122,8 @@ public class PlayerService {
                 bossTimeLeftSeconds(player),
                 heroViews,
                 rebirthReady,
-                rebirthHint
+                rebirthHint,
+                BigNumDto.from(ashDropCollected)
         );
     }
 
@@ -142,43 +150,49 @@ public class PlayerService {
         combatEngine.syncBossTimer(player, LocalDateTime.now());
         BigNum totalPassiveDps = heroService.totalPassiveDps(player.getId());
         long cappedSeconds = Math.min(hours * 3600L, OFFLINE_CAP_SECONDS);
+        BigNum ashGained = BigNum.ZERO;
         if (!totalPassiveDps.isZero()) {
             // каждая секунда DPS — отдельный удар; таймер босса идёт внутри симуляции
-            combatEngine.applyHits(player, totalPassiveDps, cappedSeconds, true);
+            ashGained = combatEngine.applyHits(player, totalPassiveDps, cappedSeconds, true).ashGained();
         }
         player.setLastCollectedAt(LocalDateTime.now());
         playerRepository.save(player);
 
-        return getState(username);
+        return getState(username, ashGained);
+    }
+
+    /** Результат тика пассивного DPS: офлайн-золото и Пепел, дропнутый (если) во время онлайн-тика. */
+    private record TickResult(BigNum offlineGold, BigNum ashGained) {
+        static final TickResult NONE = new TickResult(BigNum.ZERO, BigNum.ZERO);
     }
 
     /**
      * Пассивный DPS героев (GDD §3.5) за время с прошлого обращения:
      * - короткая пауза (≤{@link #ONLINE_TICK_MAX_SECONDS}) — DPS наносится уроном через
-     *   {@link CombatEngine}: убивает мобов/боссов и двигает уровни, как тапы;
-     * - длинная пауза (офлайн) — только золото по текущему уровню с потолком 12ч,
-     *   уровни офлайн не двигаются (GDD §12.5).
-     * Возвращает начисленное офлайн-золото (0 для онлайн-тика — его золото уже в player.gold).
+     *   {@link CombatEngine}: убивает мобов/боссов и двигает уровни, как тапы (в т.ч. может
+     *   дропнуть Пепел с обычных мобов, если {@code rebirthCount >= 1});
+     * - длинная пауза (офлайн) — только золото по текущему уровню с потолком 12ч, уровни офлайн
+     *   не двигаются (GDD §12.5); дискретных убийств там нет, поэтому дроп Пепла не работает.
      */
-    private BigNum applyPassiveDps(Player player) {
+    private TickResult applyPassiveDps(Player player) {
         LocalDateTime now = LocalDateTime.now();
         long elapsedSeconds = Duration.between(player.getLastCollectedAt(), now).getSeconds();
         player.setLastCollectedAt(now);
         combatEngine.syncBossTimer(player, now);
 
         if (elapsedSeconds <= 0) {
-            return BigNum.ZERO;
+            return TickResult.NONE;
         }
 
         BigNum totalPassiveDps = heroService.totalPassiveDps(player.getId());
         if (totalPassiveDps.isZero()) {
-            return BigNum.ZERO;
+            return TickResult.NONE;
         }
 
         if (elapsedSeconds <= ONLINE_TICK_MAX_SECONDS) {
             // каждая секунда DPS — отдельный удар (без переноса урона между мобами)
-            combatEngine.applyHits(player, totalPassiveDps, elapsedSeconds, true);
-            return BigNum.ZERO;
+            BigNum ashGained = combatEngine.applyHits(player, totalPassiveDps, elapsedSeconds, true).ashGained();
+            return new TickResult(BigNum.ZERO, ashGained);
         }
 
         long cappedSeconds = Math.min(elapsedSeconds, OFFLINE_CAP_SECONDS);
@@ -192,6 +206,6 @@ public class PlayerService {
         BigNum offlineGold = goldPerSecond.multiply(cappedSeconds).floor();
 
         player.setGold(player.getGold().add(offlineGold));
-        return offlineGold;
+        return new TickResult(offlineGold, BigNum.ZERO);
     }
 }

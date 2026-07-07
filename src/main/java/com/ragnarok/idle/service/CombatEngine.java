@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.function.DoubleSupplier;
 
 /**
  * Общий боевой цикл для тапов и пассивного DPS героев (GDD §3.1, §3.5).
@@ -27,8 +28,29 @@ public class CombatEngine {
     /** Защита от бесконечного цикла при аномальных данных — по факту never hit. */
     private static final long MAX_HITS_PER_REQUEST = 200_000;
 
+    /**
+     * Шанс дропа Пепла с ОБЫЧНОГО (не боссового) моба, доступен только после 1-го перерождения
+     * ({@code player.rebirthCount >= 1}) — правка ТЗ. Именованная константа, значение синхронизировано
+     * с economy_constants.md ("Шанс дропа Пепла с моба").
+     */
+    static final double ASH_DROP_CHANCE = 0.02;
+
+    /**
+     * Делитель уровня для количества дропнутого Пепла: {@code floor(1 + level / divisor)} — привязка
+     * к номеру уровня, а не к HP (HP растёт экспоненциально и сломает баланс). Синхронизировано с
+     * economy_constants.md ("Делитель уровня для дропа Пепла").
+     */
+    static final double ASH_DROP_LEVEL_DIVISOR = 100.0;
+
+    private final DoubleSupplier ashDropRoll;
+
+    public CombatEngine(DoubleSupplier ashDropRoll) {
+        this.ashDropRoll = ashDropRoll;
+    }
+
     /** Итог серии ударов; изменения уровня/HP уже записаны в player. */
-    public record DamageResult(int mobsKilled, boolean bossDefeated, boolean leveledUp, BigNum goldGained) {
+    public record DamageResult(int mobsKilled, boolean bossDefeated, boolean leveledUp, BigNum goldGained,
+                                BigNum ashGained) {
     }
 
     /** true, если на уровне level есть босс (каждый 5-й уровень). */
@@ -88,9 +110,10 @@ public class CombatEngine {
         boolean bossDefeated = false;
         boolean leveledUp = false;
         BigNum goldGained = BigNum.ZERO;
+        BigNum ashGained = BigNum.ZERO;
 
         if (damagePerHit.isZero() || hits <= 0) {
-            return new DamageResult(0, false, false, goldGained);
+            return new DamageResult(0, false, false, goldGained, ashGained);
         }
 
         long bossAttemptSeconds = 0;
@@ -122,6 +145,9 @@ public class CombatEngine {
                 advanceToLevel(player, level + 1);
             } else {
                 mobsKilled++;
+                if (player.getRebirthCount() >= 1 && ashDropRoll.getAsDouble() < ASH_DROP_CHANCE) {
+                    ashGained = ashGained.add(BigNum.of(Math.floor(1 + level / ASH_DROP_LEVEL_DIVISOR)));
+                }
                 if (subLevel < lastMobSlot(level)) {
                     player.setCurrentSubLevel(subLevel + 1);
                     player.setCurrentMobHp(EconomyCurves.mobHp(level));
@@ -142,7 +168,8 @@ public class CombatEngine {
         }
 
         player.setGold(player.getGold().add(goldGained));
-        return new DamageResult(mobsKilled, bossDefeated, leveledUp, goldGained);
+        player.setAsh(player.getAsh().add(ashGained));
+        return new DamageResult(mobsKilled, bossDefeated, leveledUp, goldGained, ashGained);
     }
 
     private void advanceToLevel(Player player, long nextLevel) {

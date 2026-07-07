@@ -9,6 +9,7 @@ public record TapResponse(
         Integer currentSubLevel,
         BigNumDto currentMobHpRemaining,
         BigNumDto goldGained,
-        BigNumDto goldTotal
+        BigNumDto goldTotal,
+        BigNumDto ashGained
 ) {
 }

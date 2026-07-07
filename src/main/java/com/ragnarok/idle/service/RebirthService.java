@@ -64,6 +64,7 @@ public class RebirthService {
                 .floor();
 
         player.setAsh(player.getAsh().add(ashGained));
+        player.setRebirthCount(player.getRebirthCount() + 1);
         player.setGold(BigNum.ZERO);
         player.setCurrentLevel(1L);
         player.setCurrentSubLevel(1);

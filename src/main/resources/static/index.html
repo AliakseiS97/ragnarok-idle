@@ -358,6 +358,10 @@
         rebirthButton.disabled = !state.rebirthReady;
         rebirthButton.title = state.rebirthReady ? '' : (state.rebirthHint || '');
 
+        if (state.ashDropCollected && state.ashDropCollected.display !== '0') {
+            showToast('🔥 +' + state.ashDropCollected.display + ' Пепла с моба!', true);
+        }
+
         renderHeroes(state.heroes);
     }
 
@@ -417,6 +421,7 @@
     document.getElementById('tapButton').addEventListener('click', function () {
         api('/battle/tap', 'POST', { taps: 1 }).then(function (res) {
             var msg = 'Урон ' + res.damageDealt.display + ' · +' + res.goldGained.display + ' золота';
+            if (res.ashGained && res.ashGained.display !== '0') msg += ' · 🔥 +' + res.ashGained.display + ' Пепла!';
             if (res.bossDefeated) msg += ' · 👑 Босс повержен!';
             if (res.leveledUp) msg += ' · Новый уровень: ' + res.currentLevel;
             document.getElementById('tapFeedback').textContent = msg;

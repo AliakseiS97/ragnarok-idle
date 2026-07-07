@@ -30,6 +30,8 @@ public class HeroService {
     /** +25% к общему DPS команды разово на вехе; дальше растёт только личный DPS бафера. */
     private static final double BAFFER_MILESTONE_BONUS = 0.25;
     private static final double SPECIAL_BAFFER_MULT = 3.0;
+    /** +0.3% к общему DPS за единицу Пепла, постоянно (GDD §3.9, economy_constants.md: "Пепел за 1% DPS"). */
+    private static final double ASH_DPS_STEP = 0.003;
     /** Цена апгрейда героя растёт на 7%/уровень; базой берём цену найма героя (в источнике отдельно не указана). */
     private static final double UPGRADE_COST_GROWTH = 1.07;
 
@@ -83,9 +85,13 @@ public class HeroService {
             bafferBonus *= SPECIAL_BAFFER_MULT;
         }
         double multiplier = 1 + bafferBonus;
+
+        BigNum ash = playerRepository.findById(playerId).map(Player::getAsh).orElse(BigNum.ZERO);
+        BigNum globalMult = BigNum.ONE.add(ash.multiply(ASH_DPS_STEP));
+
         // DPS каждого героя — целое; округление до БЛИЖАЙШЕГО, чтобы +10%/ур. был виден
         // уже на первом апгрейде дешёвых героев (floor съедал 5×1.1=5.5 обратно в 5)
-        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier).add(BigNum.of(0.5)).floor());
+        rawDpsByHero.replaceAll((heroId, dps) -> dps.multiply(multiplier).multiply(globalMult).add(BigNum.of(0.5)).floor());
         return rawDpsByHero;
     }
 

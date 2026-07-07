@@ -18,6 +18,7 @@ public record PlayerStateResponse(
         Long bossTimeLeftSeconds,
         List<PlayerHeroView> heroes,
         Boolean rebirthReady,
-        String rebirthHint
+        String rebirthHint,
+        BigNumDto ashDropCollected
 ) {
 }

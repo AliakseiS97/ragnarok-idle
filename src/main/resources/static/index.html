@@ -89,7 +89,7 @@
 
     #statusBar {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 8px;
         background: var(--panel);
         border: 1px solid var(--border);
@@ -122,14 +122,14 @@
     #tapButton:active { transform: scale(0.96); }
     #tapFeedback { min-height: 22px; margin-top: 10px; font-size: 0.9rem; color: var(--ok); }
 
-    #heroList {
+    .hero-panel {
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 12px;
         margin-bottom: 20px;
     }
-    #heroList h2 { color: var(--rune); font-size: 1rem; margin: 4px 8px 12px; letter-spacing: 2px; }
+    .hero-panel h2 { color: var(--rune); font-size: 1rem; margin: 4px 8px 12px; letter-spacing: 2px; }
     .hero-row {
         display: flex;
         align-items: center;
@@ -193,6 +193,7 @@
         <div><span class="label">Уровень</span><span class="value" id="stLevel">-</span></div>
         <div><span class="label">Золото</span><span class="value" id="stGold">-</span></div>
         <div><span class="label">Пепел</span><span class="value" id="stAsh">-</span></div>
+        <div><span class="label">Урон/клик</span><span class="value" id="stDpc">-</span></div>
         <div><span class="label">DPS</span><span class="value" id="stDps">-</span></div>
     </div>
 
@@ -206,7 +207,21 @@
         <button id="rebirthButton">🔥 Перерождение</button>
     </div>
 
-    <div id="heroList">
+    <div id="avatarPanel" class="hero-panel">
+        <h2>Аватар</h2>
+        <div class="hero-row" id="avatarRow">
+            <div class="hero-icon">🧔</div>
+            <div class="hero-info">
+                <div class="hero-name">Аватар (ты)</div>
+                <div class="hero-meta" id="avatarMeta">ур. - · урон/тап -</div>
+            </div>
+            <div class="hero-actions">
+                <button id="avatarUpgradeButton">Улучшить тап</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="heroList" class="hero-panel">
         <h2>Герои</h2>
         <div id="heroRows"></div>
     </div>
@@ -300,11 +315,23 @@
         document.getElementById('mobInfo').textContent =
             'Этаж ' + state.currentLevel + ' · моб ' + state.currentSubLevel + '/11 · HP: ' + state.currentMobHp.display;
 
-        var totalDps = state.heroes.reduce(function (sum, h) { return sum + (h.dps.mantissa * Math.pow(10, h.dps.exponent)); }, 0);
-        document.getElementById('stDps').textContent = totalDps > 0 ? totalDps.toFixed(1) : '0';
+        var totalDps = state.heroes.reduce(function (sum, h) { return sum + (h.owned ? h.dps.mantissa * Math.pow(10, h.dps.exponent) : 0); }, 0);
+        document.getElementById('stDps').textContent = totalDps > 0 ? String(Math.floor(totalDps)) : '0';
+        document.getElementById('stDpc').textContent = state.tapDamage.display;
+
+        document.getElementById('avatarMeta').textContent =
+            'ур. ' + state.tapDamageLevel + ' · урон/тап ' + state.tapDamage.display;
+        document.getElementById('avatarUpgradeButton').textContent =
+            'Улучшить тап (' + state.tapUpgradeCost.display + ')';
 
         renderHeroes(state.heroes);
     }
+
+    document.getElementById('avatarUpgradeButton').addEventListener('click', function () {
+        api('/avatar/tap-damage/upgrade', 'POST', { levels: 1 })
+            .then(refreshState)
+            .catch(function (err) { showError(err.message); });
+    });
 
     function renderHeroes(heroes) {
         var container = document.getElementById('heroRows');
@@ -322,7 +349,7 @@
             info.className = 'hero-info';
             info.innerHTML =
                 '<div class="hero-name">' + hero.name + '</div>' +
-                '<div class="hero-meta">ур. ' + hero.level + ' · DPS ' + hero.dps.display + ' · цена ' + hero.price.display + '</div>';
+                '<div class="hero-meta">ур. ' + hero.level + ' · DPS ' + hero.dps.display + '</div>';
             row.appendChild(info);
 
             var actions = document.createElement('div');
@@ -330,7 +357,7 @@
 
             if (!hero.owned) {
                 var buyBtn = document.createElement('button');
-                buyBtn.textContent = 'Купить';
+                buyBtn.textContent = 'Купить (' + hero.price.display + ')';
                 buyBtn.addEventListener('click', function () {
                     api('/heroes/' + hero.heroId + '/buy', 'POST', {})
                         .then(refreshState)
@@ -339,7 +366,7 @@
                 actions.appendChild(buyBtn);
             } else {
                 var upBtn = document.createElement('button');
-                upBtn.textContent = 'Улучшить';
+                upBtn.textContent = 'Улучшить (' + hero.upgradeCost.display + ')';
                 upBtn.addEventListener('click', function () {
                     api('/heroes/' + hero.heroId + '/upgrade', 'POST', { levels: 1 })
                         .then(refreshState)

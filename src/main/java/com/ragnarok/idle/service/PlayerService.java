@@ -92,6 +92,13 @@ public class PlayerService {
                 })
                 .toList();
 
+        long hero15Level = owned.containsKey(RebirthService.REBIRTH_GATE_HERO_ID)
+                ? owned.get(RebirthService.REBIRTH_GATE_HERO_ID).getLevel()
+                : 0L;
+        boolean rebirthReady = hero15Level >= RebirthService.REBIRTH_GATE_HERO_LEVEL;
+        String rebirthHint = rebirthReady ? null
+                : "Нужен Ледяной ётун %d ур. (сейчас %d)".formatted(RebirthService.REBIRTH_GATE_HERO_LEVEL, hero15Level);
+
         return new PlayerStateResponse(
                 player.getCurrentLevel(),
                 player.getMaxLevel(),
@@ -106,7 +113,9 @@ public class PlayerService {
                 BigNumDto.from(AvatarService.upgradeCostFrom(avatar.getTapDamageLevel())),
                 player.isAutoAdvance(),
                 bossTimeLeftSeconds(player),
-                heroViews
+                heroViews,
+                rebirthReady,
+                rebirthHint
         );
     }
 

@@ -16,6 +16,8 @@ public record PlayerStateResponse(
         BigNumDto tapUpgradeCost,
         Boolean autoAdvance,
         Long bossTimeLeftSeconds,
-        List<PlayerHeroView> heroes
+        List<PlayerHeroView> heroes,
+        Boolean rebirthReady,
+        String rebirthHint
 ) {
 }

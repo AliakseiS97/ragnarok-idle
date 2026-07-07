@@ -354,6 +354,10 @@
         document.getElementById('avatarUpgradeButton').textContent =
             'Улучшить тап (' + state.tapUpgradeCost.display + ')';
 
+        var rebirthButton = document.getElementById('rebirthButton');
+        rebirthButton.disabled = !state.rebirthReady;
+        rebirthButton.title = state.rebirthReady ? '' : (state.rebirthHint || '');
+
         renderHeroes(state.heroes);
     }
 

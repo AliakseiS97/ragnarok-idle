@@ -37,12 +37,32 @@ class RebirthServiceTest {
     private AvatarRepository avatarRepository;
 
     @Test
-    void rebirthBelowMinLevelIsRejected() {
+    void rebirthWithoutHero15AtGateLevelIsRejected() {
         authService.register("rebirth_low", "password123");
-        // свежий игрок: maxLevel=1, порог из GDD §3.9 — 100.
+        // свежий игрок: герой 15 не куплен (ур.0) — гейт 125 не пройден.
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> rebirthService.rebirth("rebirth_low"));
+
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+    }
+
+    @Test
+    void rebirthBelowHero15GateLevelIsRejectedEvenWithHeroOwned() {
+        authService.register("rebirth_hero_low", "password123");
+        Player player = playerRepository.findByUsername("rebirth_hero_low").orElseThrow();
+        player.setMaxLevel(5000L);
+        playerRepository.save(player);
+
+        PlayerHero hero15 = new PlayerHero();
+        hero15.setPlayerId(player.getId());
+        hero15.setHeroId(RebirthService.REBIRTH_GATE_HERO_ID);
+        hero15.setLevel(RebirthService.REBIRTH_GATE_HERO_LEVEL - 1);
+        hero15.setActivated(true);
+        playerHeroRepository.save(hero15);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> rebirthService.rebirth("rebirth_hero_low"));
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
     }
@@ -62,6 +82,14 @@ class RebirthServiceTest {
         hero.setLevel(50L);
         hero.setActivated(true);
         playerHeroRepository.save(hero);
+
+        // гейт ребёрта (правка ТЗ): герой 15 "Ледяной ётун" должен достигнуть 125 ур.
+        PlayerHero hero15 = new PlayerHero();
+        hero15.setPlayerId(player.getId());
+        hero15.setHeroId(RebirthService.REBIRTH_GATE_HERO_ID);
+        hero15.setLevel(RebirthService.REBIRTH_GATE_HERO_LEVEL);
+        hero15.setActivated(true);
+        playerHeroRepository.save(hero15);
 
         Avatar avatar = avatarRepository.findById(player.getId()).orElseThrow();
         avatar.setTapDamageLevel(12L);

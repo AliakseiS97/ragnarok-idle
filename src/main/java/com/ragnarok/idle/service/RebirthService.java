@@ -2,6 +2,7 @@ package com.ragnarok.idle.service;
 
 import com.ragnarok.idle.domain.Avatar;
 import com.ragnarok.idle.domain.Player;
+import com.ragnarok.idle.domain.PlayerHero;
 import com.ragnarok.idle.dto.BigNumDto;
 import com.ragnarok.idle.dto.RebirthResponse;
 import com.ragnarok.idle.economy.EconomyCurves;
@@ -17,8 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class RebirthService {
 
-    /** Ребёрт доступен с этого maxLevel (GDD §3.9). Артефакт +старт-уровня — Спринт 2+. */
-    private static final long MIN_REBIRTH_LEVEL = 100;
+    /** Гейт ребёрта: герой id=15 (Ледяной ётун, тип REBIRTH) должен быть куплен и прокачан до этого уровня. */
+    public static final long REBIRTH_GATE_HERO_ID = 15L;
+    public static final long REBIRTH_GATE_HERO_LEVEL = 125L;
 
     /** ashGained = floor(ashBoost × mobHP(maxLevel)^ashExp) (GDD §3.9). */
     private static final double ASH_EXPONENT = 0.0009;
@@ -47,9 +49,13 @@ public class RebirthService {
         Player player = playerRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
 
-        if (player.getMaxLevel() < MIN_REBIRTH_LEVEL) {
+        long hero15Level = playerHeroRepository.findByPlayerIdAndHeroId(player.getId(), REBIRTH_GATE_HERO_ID)
+                .map(PlayerHero::getLevel)
+                .orElse(0L);
+        if (hero15Level < REBIRTH_GATE_HERO_LEVEL) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Rebirth requires reaching level " + MIN_REBIRTH_LEVEL);
+                    "Rebirth requires Ледяной ётун (hero 15) at level " + REBIRTH_GATE_HERO_LEVEL
+                            + ", currently " + hero15Level);
         }
 
         BigNum ashGained = EconomyCurves.mobHp(player.getMaxLevel())

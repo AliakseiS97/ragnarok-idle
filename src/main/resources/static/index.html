@@ -472,15 +472,36 @@
         battleAction('/battle/auto-advance', { enabled: !window._autoAdvance });
     });
 
+    // ---- пауза поллинга вокруг разовых операций (ребёрт, тайм-тревел) ----
+    // Поллинг /player/me раз в 1с работает независимо от таких кликов; если тик, отправленный ДО
+    // операции, придёт ПОСЛЕ нёё — он либо перезапишет экран старыми данными (ловит stateSeq выше),
+    // либо гоняется за той же строкой Player и ловит конфликт версии на сервере (409, сервер
+    // дополнительно ретраит сам — см. DebugController). Пауза с небольшой задержкой до/после снижает
+    // шанс такой гонки: даёт долистать уже отправленный в полёте poll-тик перед стартом операции и
+    // перед возобновлением поллинга после неё.
+    function withPollPaused(action) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        return new Promise(function (resolve) { setTimeout(resolve, 150); })
+            .then(action)
+            .finally(function () {
+                setTimeout(function () {
+                    if (!pollTimer) pollTimer = setInterval(refreshState, 1000);
+                }, 150);
+            });
+    }
+
     // ---- тестовая прокрутка времени (потом — Яблоки Идунн) ----
     function skipTime(hours) {
-        var seq = beginRequest();
-        api('/debug/skip-time', 'POST', { hours: hours }).then(function (state) {
-            if (!isLatest(seq)) return;
-            renderState(state);
-            showToast('Прокручено ' + hours + 'ч (потолок 12ч) · этаж ' + state.currentLevel +
-                ' · золото ' + state.gold.display, true);
-        }).catch(function (err) { showError(err.message); });
+        withPollPaused(function () {
+            var seq = beginRequest();
+            return api('/debug/skip-time', 'POST', { hours: hours }).then(function (state) {
+                if (!isLatest(seq)) return;
+                renderState(state);
+                showToast('Прокручено ' + hours + 'ч (потолок 12ч) · этаж ' + state.currentLevel +
+                    ' · золото ' + state.gold.display, true);
+            }).catch(function (err) { showError(err.message); });
+        });
     }
     document.getElementById('skip5Button').addEventListener('click', function () { skipTime(5); });
     document.getElementById('skip50Button').addEventListener('click', function () { skipTime(50); });
@@ -489,21 +510,14 @@
     document.getElementById('rebirthButton').addEventListener('click', function () {
         if (!confirm('Перерождение сбросит ВСЁ: уровень, золото, героев (нанимать заново) и прокачку Аватара — в обмен на Пепел. Продолжить?')) return;
 
-        // останавливаем фоновый поллинг на время ребёрта — иначе тик, отправленный ДО сброса,
-        // может прийти ПОСЛЕ и перезаписать экран старыми данными (см. stateSeq выше)
-        clearInterval(pollTimer);
-        pollTimer = null;
-
-        var seq = beginRequest();
-        api('/rebirth', 'POST', {}).then(function (res) {
-            if (isLatest(seq)) {
-                showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
-            }
-            refreshState();
-        }).catch(function (err) {
-            showError(err.message);
-        }).finally(function () {
-            if (!pollTimer) pollTimer = setInterval(refreshState, 1000);
+        withPollPaused(function () {
+            var seq = beginRequest();
+            return api('/rebirth', 'POST', {}).then(function (res) {
+                if (isLatest(seq)) {
+                    showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
+                }
+                refreshState();
+            }).catch(function (err) { showError(err.message); });
         });
     });
 })();

@@ -127,10 +127,9 @@ public class PlayerService {
         );
     }
 
-    /** Остаток таймера босса для UI; null — игрок не на боссе. */
+    /** Остаток таймера босса для UI; null — игрок не на боссовом уровне. */
     private Long bossTimeLeftSeconds(Player player) {
-        if (!CombatEngine.isBossSlot(player.getCurrentLevel(), player.getCurrentSubLevel())
-                || player.getBossStartedAt() == null) {
+        if (!CombatEngine.isBossLevel(player.getCurrentLevel()) || player.getBossStartedAt() == null) {
             return null;
         }
         long elapsed = Duration.between(player.getBossStartedAt(), LocalDateTime.now()).getSeconds();

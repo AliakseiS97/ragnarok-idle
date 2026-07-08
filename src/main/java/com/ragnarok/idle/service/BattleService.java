@@ -5,7 +5,6 @@ import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.dto.BigNumDto;
 import com.ragnarok.idle.dto.PlayerStateResponse;
 import com.ragnarok.idle.dto.TapResponse;
-import com.ragnarok.idle.economy.EconomyCurves;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
@@ -74,19 +73,22 @@ public class BattleService {
         );
     }
 
-    /** «К боссу»: с мобов босс-уровня — на 10-ю подлокацию, таймер 30с пошёл. */
+    /**
+     * «К боссу»: мгновенный прыжок на застрявший незакрытый боссовый уровень (maxLevel). Пройти
+     * боссовый уровень можно только убив босса — значит, если maxLevel кратен 5, игрок именно там
+     * застрял (не хватило DPS/тапов), возможно уйдя фармить золото назад по обычным уровням.
+     */
     @Transactional
     public PlayerStateResponse goToBoss(String username) {
         Player player = findPlayer(username);
-        if (!CombatEngine.isBossLevel(player.getCurrentLevel())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No boss on this level");
+        long bossLevel = player.getMaxLevel();
+        if (!CombatEngine.isBossLevel(bossLevel)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No pending boss to return to");
         }
-        if (CombatEngine.isBossSlot(player.getCurrentLevel(), player.getCurrentSubLevel())) {
+        if (player.getCurrentLevel() == bossLevel) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already fighting the boss");
         }
-        player.setCurrentSubLevel(EconomyCurves.MOBS_PER_LEVEL);
-        player.setCurrentMobHp(EconomyCurves.bossHp(player.getCurrentLevel()));
-        player.setBossStartedAt(LocalDateTime.now());
+        combatEngine.enterLevel(player, bossLevel);
         playerRepository.save(player);
         return playerService.getState(username);
     }
@@ -102,10 +104,7 @@ public class BattleService {
         if (targetLevel > player.getMaxLevel()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Level not unlocked yet");
         }
-        player.setCurrentLevel(targetLevel);
-        player.setCurrentSubLevel(1);
-        player.setCurrentMobHp(EconomyCurves.mobHp(targetLevel));
-        player.setBossStartedAt(null);
+        combatEngine.enterLevel(player, targetLevel);
         playerRepository.save(player);
         return playerService.getState(username);
     }

@@ -100,15 +100,17 @@ class PlayerServiceTest {
 
         // прокрутка проносит уровни, а не только капает золотом
         assertTrue(after5h.currentLevel() > 1, "за 5ч DPS должен пройти уровни, был " + after5h.currentLevel());
-        // 50ч упирается в потолок 12ч (GDD §12.5): прогресс идентичен 12-часовому
+
+        // слабый DPS (5) добивает обычные уровни 1-4 за считанные минуты, дальше застревает на
+        // ЦЕЛИКОМ боссовом 5-м уровне (боевой урон за 30с не пробивает bossHP(5)=1116, а фармить
+        // там больше нечего — обычных мобов на боссовом уровне нет). Поэтому 5ч/12ч/50ч дают ОДИН
+        // и тот же итог: дальше прогресс не двигается вообще, а не просто "12ч > 5ч" как раньше.
+        assertEquals(5L, after5h.currentLevel(), "застрял на боссе 5-го уровня — DPS не хватает пробить за 30с");
+        assertEquals(after5h.currentLevel(), after12h.currentLevel());
         assertEquals(after12h.currentLevel(), after50h.currentLevel());
-        assertEquals(after12h.currentSubLevel(), after50h.currentSubLevel());
+        assertEquals(after5h.gold().display(), after12h.gold().display(),
+                "прогресс упёрся в босса — дальше 5ч/12ч/50ч золота не добавляют");
         assertEquals(after12h.gold().display(), after50h.gold().display());
-        // а за 5ч заработано строго меньше, чем за 12ч (уровень может совпасть:
-        // слабый DPS упирается в 30-сек босса 5-го уровня и фармит мобов)
-        double gold5h = toPlain(after5h.gold().mantissa(), after5h.gold().exponent());
-        double gold12h = toPlain(after12h.gold().mantissa(), after12h.gold().exponent());
-        assertTrue(gold5h < gold12h, "12ч фарма должны дать больше золота, чем 5ч");
     }
 
     private PlayerStateResponse registerWithHeroAndSkip(String username, int hours) {

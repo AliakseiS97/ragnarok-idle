@@ -53,8 +53,9 @@ public class Player {
     private LocalDateTime lastCollectedAt;
 
     /**
-     * Позиция в текущем уровне: 1..10 — все подлокации; на каждом 5-м уровне 10-я подлокация —
-     * таймер-босс (не отдельный 11-й слот, {@link com.ragnarok.idle.service.CombatEngine#isBossSlot}).
+     * Позиция в текущем уровне: 1..10 — подлокации ОБЫЧНОГО уровня. На боссовом уровне (каждый 5-й,
+     * {@link com.ragnarok.idle.service.CombatEngine#isBossLevel}) всегда 1 — сам уровень целиком
+     * один бой с боссом, подлокаций-мобов там нет.
      */
     @Column(name = "current_sub_level", nullable = false)
     private Integer currentSubLevel;

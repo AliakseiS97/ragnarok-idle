@@ -11,15 +11,17 @@ import java.util.function.DoubleSupplier;
 
 /**
  * Общий боевой цикл для тапов и пассивного DPS героев (GDD §3.1, §3.5).
- * Модель — серия ОТДЕЛЬНЫХ ударов: каждый тап (или секунда DPS) бьёт текущего
- * моба; убил — остаток удара СГОРАЕТ, следующий моб загружается с полным HP.
- * Босс — 10-я подлокация каждого 5-го уровня, на него даётся 30 секунд;
- * не успел — босс восстанавливается, игрок падает на мобов уровня (фарм).
+ * Модель — серия ОТДЕЛЬНЫХ ударов: каждый тап (или секунда DPS) бьёт текущую цель;
+ * убил — остаток удара СГОРАЕТ, следующая цель загружается с полным HP.
+ * Уровни, кратные 5, — ЦЕЛИКОМ боссовые (один бой, без обычных мобов); остальные —
+ * 10 подлокаций-мобов, как обычно. На босса даётся 30 секунд; не успел — босс
+ * восстанавливается на полное HP, игрок остаётся на этом же (боссовом) уровне —
+ * откатываться некуда, обычных мобов там нет.
  */
 @Component
 public class CombatEngine {
 
-    /** Босс — 10-я подлокация каждого 5-го уровня (5, 10, 15, ...). */
+    /** Уровни, кратные этому числу, — целиком боссовые (5, 10, 15, ...). */
     public static final int BOSS_LEVEL_PERIOD = 5;
 
     /** Таймер боя с боссом (GDD §3.1). */
@@ -53,33 +55,19 @@ public class CombatEngine {
                                 BigNum ashGained) {
     }
 
-    /** true, если на уровне level есть босс (каждый 5-й уровень). */
+    /** true, если уровень level — целиком боссовый (каждый 5-й). */
     public static boolean isBossLevel(long level) {
         return level % BOSS_LEVEL_PERIOD == 0;
     }
 
-    /** true, если подлокация subLevel уровня level — босс. */
-    public static boolean isBossSlot(long level, int subLevel) {
-        return isBossLevel(level) && subLevel == EconomyCurves.MOBS_PER_LEVEL;
-    }
-
-    /** Последняя ОБЫЧНАЯ подлокация уровня: 9 на босс-уровне (10-я — босс), иначе 10. */
-    private static int lastMobSlot(long level) {
-        return isBossLevel(level) ? EconomyCurves.MOBS_PER_LEVEL - 1 : EconomyCurves.MOBS_PER_LEVEL;
-    }
-
-    /** Полное HP врага на подлокации subLevel уровня level. */
-    public static BigNum slotHp(long level, int subLevel) {
-        return isBossSlot(level, subLevel) ? EconomyCurves.bossHp(level) : EconomyCurves.mobHp(level);
-    }
-
     /**
-     * Поддержка таймера босса в реальном времени: если игрок стоит на боссе без отметки —
-     * ставит её; если 30 секунд истекли — босс восстанавливается, игрок падает на 1-ю
-     * подлокацию уровня (фарм мобов «перед боссом»). Вызывать перед applyHits и в getState.
+     * Поддержка таймера босса в реальном времени: если игрок стоит на боссовом уровне без отметки —
+     * ставит её; если 30 секунд истекли — босс восстанавливается на полное HP (игрок остаётся на
+     * этом же уровне, откатываться некуда — обычных мобов на боссовом уровне нет).
+     * Вызывать перед applyHits и в getState.
      */
     public void syncBossTimer(Player player, LocalDateTime now) {
-        if (!isBossSlot(player.getCurrentLevel(), player.getCurrentSubLevel())) {
+        if (!isBossLevel(player.getCurrentLevel())) {
             return;
         }
         if (player.getBossStartedAt() == null) {
@@ -91,11 +79,30 @@ public class CombatEngine {
         }
     }
 
-    /** Не успел за 30с: босс восстановлен, игрок — на 1-ю подлокацию уровня. */
+    /** Не успел за 30с: босс восстановлен на полное HP, уровень тот же. */
     private void failBossFight(Player player) {
         player.setBossStartedAt(null);
+        player.setCurrentMobHp(EconomyCurves.bossHp(player.getCurrentLevel()));
+    }
+
+    /**
+     * Переход на уровень level (автопрогресс, ручная навигация или «К боссу») — выставляет HP и
+     * таймер под тип уровня: боссовый — полное HP босса и сразу стартующий 30-сек таймер; обычный —
+     * HP 1-го моба, таймер выключен. Обновляет maxLevel, если level — новый рекорд.
+     */
+    public void enterLevel(Player player, long level) {
+        player.setCurrentLevel(level);
+        if (level > player.getMaxLevel()) {
+            player.setMaxLevel(level);
+        }
         player.setCurrentSubLevel(1);
-        player.setCurrentMobHp(EconomyCurves.mobHp(player.getCurrentLevel()));
+        if (isBossLevel(level)) {
+            player.setCurrentMobHp(EconomyCurves.bossHp(level));
+            player.setBossStartedAt(LocalDateTime.now());
+        } else {
+            player.setCurrentMobHp(EconomyCurves.mobHp(level));
+            player.setBossStartedAt(null);
+        }
     }
 
     /**
@@ -121,7 +128,7 @@ public class CombatEngine {
         for (long i = 0; i < limit; i++) {
             long level = player.getCurrentLevel();
             int subLevel = player.getCurrentSubLevel();
-            boolean onBoss = isBossSlot(level, subLevel);
+            boolean onBoss = isBossLevel(level);
             BigNum currentHp = player.getCurrentMobHp();
 
             if (damagePerHit.lt(currentHp)) {
@@ -139,30 +146,27 @@ public class CombatEngine {
                     : EconomyCurves.goldPerMob(level));
 
             if (onBoss) {
+                // босс — единственная цель целиком боссового уровня
                 bossDefeated = true;
                 leveledUp = true;
-                player.setBossStartedAt(null);
-                advanceToLevel(player, level + 1);
+                bossAttemptSeconds = 0;
+                enterLevel(player, level + 1);
             } else {
                 mobsKilled++;
                 if (player.getRebirthCount() >= 1 && ashDropRoll.getAsDouble() < ASH_DROP_CHANCE) {
                     ashGained = ashGained.add(BigNum.of(Math.floor(1 + level / ASH_DROP_LEVEL_DIVISOR)));
                 }
-                if (subLevel < lastMobSlot(level)) {
+                if (subLevel < EconomyCurves.MOBS_PER_LEVEL) {
                     player.setCurrentSubLevel(subLevel + 1);
                     player.setCurrentMobHp(EconomyCurves.mobHp(level));
                 } else if (!player.isAutoAdvance()) {
-                    // фарм-цикл: мобы уровня по кругу, к боссу/следующему уровню не идём
+                    // фарм-цикл: мобы уровня по кругу, на следующий уровень (в т.ч. боссовый) не идём
                     player.setCurrentSubLevel(1);
                     player.setCurrentMobHp(EconomyCurves.mobHp(level));
-                } else if (isBossLevel(level)) {
-                    player.setCurrentSubLevel(EconomyCurves.MOBS_PER_LEVEL);
-                    player.setCurrentMobHp(EconomyCurves.bossHp(level));
-                    player.setBossStartedAt(LocalDateTime.now());
-                    bossAttemptSeconds = 0;
                 } else {
+                    // 10-й моб обычного уровня добит — дальше либо обычный, либо целиком боссовый
                     leveledUp = true;
-                    advanceToLevel(player, level + 1);
+                    enterLevel(player, level + 1);
                 }
             }
         }
@@ -170,14 +174,5 @@ public class CombatEngine {
         player.setGold(player.getGold().add(goldGained));
         player.setAsh(player.getAsh().add(ashGained));
         return new DamageResult(mobsKilled, bossDefeated, leveledUp, goldGained, ashGained);
-    }
-
-    private void advanceToLevel(Player player, long nextLevel) {
-        player.setCurrentLevel(nextLevel);
-        if (nextLevel > player.getMaxLevel()) {
-            player.setMaxLevel(nextLevel);
-        }
-        player.setCurrentSubLevel(1);
-        player.setCurrentMobHp(EconomyCurves.mobHp(nextLevel));
     }
 }

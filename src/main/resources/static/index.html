@@ -331,9 +331,9 @@
         }).catch(function (err) { showError(err.message); });
     }
 
-    // босс — 10-я подлокация каждого 5-го этажа; на него 30 секунд
+    // уровни, кратные 5, — целиком боссовые (без обычных мобов); на босса 30 секунд
     function mobLabel(level, subLevel, hpDisplay, bossSecondsLeft) {
-        var isBoss = level % 5 === 0 && subLevel === 10;
+        var isBoss = level % 5 === 0;
         var label = 'Этаж ' + level + ' · ' + (isBoss ? '👑 БОСС' : 'моб ' + subLevel + '/10') + ' · HP: ' + hpDisplay;
         if (isBoss && bossSecondsLeft !== null && bossSecondsLeft !== undefined) {
             label += ' · ⏳ ' + bossSecondsLeft + 'с';
@@ -348,11 +348,15 @@
         document.getElementById('mobInfo').textContent =
             mobLabel(state.currentLevel, state.currentSubLevel, state.currentMobHp.display, state.bossTimeLeftSeconds);
 
-        var onBossLevel = state.currentLevel % 5 === 0;
-        var onBossSlot = onBossLevel && state.currentSubLevel === 10;
+        // «К боссу»: активна, только если maxLevel — незакрытый боссовый уровень и мы сейчас не на нём
+        var pendingBoss = state.maxLevel % 5 === 0 && state.currentLevel !== state.maxLevel;
         document.getElementById('levelBackButton').disabled = state.currentLevel <= 1;
         document.getElementById('levelForwardButton').disabled = state.currentLevel >= state.maxLevel;
-        document.getElementById('toBossButton').disabled = !onBossLevel || onBossSlot;
+        var toBossButton = document.getElementById('toBossButton');
+        toBossButton.disabled = !pendingBoss;
+        toBossButton.title = pendingBoss
+            ? 'Вернуться к боссу ' + state.maxLevel + ' этажа'
+            : 'Нет незакрытого босса — сначала дойди до боссового этажа';
         document.getElementById('autoAdvanceButton').textContent =
             'Автопереход: ' + (state.autoAdvance ? 'ВКЛ' : 'ВЫКЛ (фарм)');
         window._autoAdvance = !!state.autoAdvance;

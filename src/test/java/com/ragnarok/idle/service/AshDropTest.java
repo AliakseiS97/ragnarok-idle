@@ -113,9 +113,8 @@ class AshDropTest {
         authService.register("ash_boss", "password123");
         Player player = playerRepository.findByUsername("ash_boss").orElseThrow();
         player.setRebirthCount(1L);
-        player.setCurrentLevel(5L);
+        player.setCurrentLevel(5L); // уровень 5 целиком боссовый — обычных мобов там нет
         player.setMaxLevel(5L);
-        player.setCurrentSubLevel(10);
         player.setCurrentMobHp(EconomyCurves.bossHp(5));
         playerRepository.save(player);
         giveOneShotKillDamage("ash_boss");

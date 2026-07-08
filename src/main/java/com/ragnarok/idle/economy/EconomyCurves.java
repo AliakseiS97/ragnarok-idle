@@ -11,7 +11,7 @@ public final class EconomyCurves {
     private EconomyCurves() {
     }
 
-    /** Уровень = строго 10 подлокаций-мобов (GDD §3.1); на каждом 5-м уровне 10-я подлокация — босс. */
+    /** Обычный (не боссовый) уровень = строго 10 подлокаций-мобов (GDD §3.1). */
     public static final int MOBS_PER_LEVEL = 10;
 
     private static final BigNum BASE_HP = BigNum.of(10);
@@ -26,7 +26,7 @@ public final class EconomyCurves {
     /** золото = HP-множитель^0.97 (отставание золота от HP, economy_constants.md). */
     private static final double GOLD_LAG_EXPONENT = 0.97;
 
-    /** HP босса (10-я подлокация каждого 5-го уровня) = mobHP × 12 (ориентир ×10-15). */
+    /** HP босса целиком боссового уровня (каждый 5-й) = mobHP той же непрерывной кривой × 12 (ориентир ×10-15). */
     private static final double BOSS_HP_MULT = 12;
 
     /** Бонус золота с босса — из GDD §3.3, в economy_constants.md отдельно не указан. */

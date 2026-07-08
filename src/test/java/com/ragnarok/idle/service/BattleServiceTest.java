@@ -5,6 +5,7 @@ import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.dto.PlayerStateResponse;
 import com.ragnarok.idle.dto.TapResponse;
 import com.ragnarok.idle.economy.EconomyCurves;
+import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
 import java.time.LocalDateTime;
@@ -76,13 +77,36 @@ class BattleServiceTest {
     }
 
     @Test
-    void bossOnTenthSlotOfFifthLevelGrantsLevelUp() {
-        authService.register("battle_boss", "password123");
-        Player player = playerRepository.findByUsername("battle_boss").orElseThrow();
-        // ставим игрока прямо на босса: уровень 5, 10-я подлокация, HP босса = mobHp(5) x 12 = 1116
+    void killingLastMobOfRegularLevelEntersBossLevelDirectly() {
+        authService.register("battle_enter_boss", "password123");
+        Player player = playerRepository.findByUsername("battle_enter_boss").orElseThrow();
+        // последний (10-й) моб обычного уровня 4; следующий уровень (5) — целиком боссовый
+        player.setCurrentLevel(4L);
+        player.setMaxLevel(4L);
+        player.setCurrentSubLevel(10);
+        player.setCurrentMobHp(EconomyCurves.mobHp(4));
+        playerRepository.save(player);
+
+        Avatar avatar = avatarRepository.findById(player.getId()).orElseThrow();
+        avatar.setTapDamageLevel(1000L); // урон 1100 >> mobHp(4)=68 — гарантированно убивает
+        avatarRepository.save(avatar);
+
+        TapResponse response = battleService.tap("battle_enter_boss", 1);
+
+        assertFalse(response.bossDefeated(), "только вошли на боссовый уровень, ещё не убили");
+        assertTrue(response.leveledUp());
+        assertEquals(5L, response.currentLevel());
+        assertEquals(1, response.currentSubLevel());
+        assertEquals(EconomyCurves.bossHp(5).toDisplayString(), response.currentMobHpRemaining().display(),
+                "уровень 5 целиком боссовый — сразу полное HP босса, без обычных мобов");
+    }
+
+    @Test
+    void killingBossAdvancesToNextRegularLevelWithContinuousCurve() {
+        authService.register("battle_boss_defeat", "password123");
+        Player player = playerRepository.findByUsername("battle_boss_defeat").orElseThrow();
         player.setCurrentLevel(5L);
         player.setMaxLevel(5L);
-        player.setCurrentSubLevel(10);
         player.setCurrentMobHp(EconomyCurves.bossHp(5));
         playerRepository.save(player);
 
@@ -90,7 +114,7 @@ class BattleServiceTest {
         avatar.setTapDamageLevel(10_000L); // урон 11000 - убивает босса одним тапом
         avatarRepository.save(avatar);
 
-        TapResponse response = battleService.tap("battle_boss", 1);
+        TapResponse response = battleService.tap("battle_boss_defeat", 1);
 
         assertTrue(response.bossDefeated());
         assertTrue(response.leveledUp());
@@ -102,12 +126,11 @@ class BattleServiceTest {
     }
 
     @Test
-    void bossTimerExpiryRestoresBossAndDropsPlayerToMobs() {
+    void bossTimerExpiryResetsBossHpButKeepsPlayerOnBossLevel() {
         authService.register("battle_timeout", "password123");
         Player player = playerRepository.findByUsername("battle_timeout").orElseThrow();
         player.setCurrentLevel(5L);
         player.setMaxLevel(5L);
-        player.setCurrentSubLevel(10);
         player.setCurrentMobHp(EconomyCurves.bossHp(5));
         player.setBossStartedAt(LocalDateTime.now().minusSeconds(31)); // 30с истекли
         playerRepository.save(player);
@@ -116,10 +139,11 @@ class BattleServiceTest {
 
         assertFalse(response.bossDefeated());
         assertFalse(response.leveledUp());
-        assertEquals(5L, response.currentLevel(), "уровень не пройден");
-        assertEquals(1, response.currentSubLevel(), "игрок отброшен на мобов уровня");
-        // тап уже пошёл по 1-му мобу (93 HP - 1)
-        assertEquals("92", response.currentMobHpRemaining().display());
+        assertEquals(5L, response.currentLevel(), "уровень не пройден — остаёмся на боссе, откатываться некуда");
+        assertEquals(1, response.currentSubLevel());
+        // таймер истёк ДО тапа -> сброс на полное bossHp(5), тап (урон 1) пошёл уже по свежему боссу
+        assertEquals(EconomyCurves.bossHp(5).subtract(BigNum.of(1)).toDisplayString(),
+                response.currentMobHpRemaining().display());
     }
 
     @Test
@@ -140,49 +164,71 @@ class BattleServiceTest {
     }
 
     @Test
-    void goToBossStartsBossFightOnlyOnBossLevels() {
+    void farmModeAlsoBlocksEnteringBossLevel() {
+        authService.register("battle_farm_boss", "password123");
+        Player player = playerRepository.findByUsername("battle_farm_boss").orElseThrow();
+        player.setCurrentLevel(4L);
+        player.setMaxLevel(4L);
+        player.setCurrentSubLevel(10); // последний моб уровня 4
+        player.setCurrentMobHp(EconomyCurves.mobHp(4));
+        player.setAutoAdvance(false); // фарм
+        playerRepository.save(player);
+
+        Avatar avatar = avatarRepository.findById(player.getId()).orElseThrow();
+        avatar.setTapDamageLevel(1000L); // урон 1100 >> mobHp(4)=68 — гарантированно убивает
+        avatarRepository.save(avatar);
+
+        TapResponse response = battleService.tap("battle_farm_boss", 1);
+
+        assertEquals(1, response.mobsKilled());
+        assertFalse(response.leveledUp(), "фарм-режим не пускает даже на боссовый уровень");
+        assertEquals(4L, response.currentLevel());
+        assertEquals(1, response.currentSubLevel(), "мобы уровня 4 пошли по кругу");
+        assertEquals(EconomyCurves.mobHp(4).toDisplayString(), response.currentMobHpRemaining().display());
+    }
+
+    @Test
+    void goToBossJumpsDirectlyToPendingBossLevel() {
         authService.register("battle_goto", "password123");
         Player player = playerRepository.findByUsername("battle_goto").orElseThrow();
-
-        // уровень 4 — босса нет
-        player.setCurrentLevel(4L);
+        // застрял на боссе 5-го уровня, ушёл фармить золото на 2-й
+        player.setCurrentLevel(2L);
         player.setMaxLevel(5L);
-        player = playerRepository.save(player); // переприсваиваем — save() мержит и бампает @Version
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> battleService.goToBoss("battle_goto"));
-        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-
-        // уровень 5 — на босса, таймер пошёл
-        player.setCurrentLevel(5L);
-        player.setCurrentSubLevel(3);
-        player.setCurrentMobHp(EconomyCurves.mobHp(5));
         playerRepository.save(player);
+
         PlayerStateResponse state = battleService.goToBoss("battle_goto");
 
-        assertEquals(10, state.currentSubLevel());
+        assertEquals(5L, state.currentLevel());
+        assertEquals(1, state.currentSubLevel());
         assertEquals(EconomyCurves.bossHp(5).toDisplayString(), state.currentMobHp().display());
         assertTrue(state.bossTimeLeftSeconds() != null && state.bossTimeLeftSeconds() <= 30);
     }
 
     @Test
-    void goToBossCannotReachLevelBeyondMaxLevel() {
-        authService.register("battle_goto_locked", "password123");
-        Player player = playerRepository.findByUsername("battle_goto_locked").orElseThrow();
-
-        // maxLevel=4 — уровень 5 (с боссом) ещё не пройден, currentLevel не может быть выше него,
-        // а значит и "К боссу" не может утащить игрока на непройденный уровень.
-        player.setCurrentLevel(4L);
-        player.setMaxLevel(4L);
+    void goToBossRejectedWhenNoPendingBoss() {
+        authService.register("battle_goto_none", "password123");
+        Player player = playerRepository.findByUsername("battle_goto_none").orElseThrow();
+        // maxLevel=7 — прогресс МЕЖДУ боссами (5-й уже пройден, 10-й ещё не достигнут): застревать негде
+        player.setCurrentLevel(6L);
+        player.setMaxLevel(7L);
         playerRepository.save(player);
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> battleService.goToBoss("battle_goto_locked"));
-        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode(), "на уровне 4 босса нет — переход запрещён");
+                () -> battleService.goToBoss("battle_goto_none"));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+    }
 
-        // попытка вручную переключиться на непройденный 5-й уровень тоже отклоняется
-        ResponseStatusException navEx = assertThrows(ResponseStatusException.class,
-                () -> battleService.changeLevel("battle_goto_locked", 1));
-        assertEquals(HttpStatus.CONFLICT, navEx.getStatusCode());
+    @Test
+    void goToBossRejectedWhenAlreadyThere() {
+        authService.register("battle_goto_already", "password123");
+        Player player = playerRepository.findByUsername("battle_goto_already").orElseThrow();
+        player.setCurrentLevel(5L);
+        player.setMaxLevel(5L);
+        playerRepository.save(player);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> battleService.goToBoss("battle_goto_already"));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
     }
 
     @Test
@@ -208,16 +254,32 @@ class BattleServiceTest {
     }
 
     @Test
+    void navigatingDirectlyOntoBossLevelStartsTheFight() {
+        authService.register("battle_nav_boss", "password123");
+        Player player = playerRepository.findByUsername("battle_nav_boss").orElseThrow();
+        player.setCurrentLevel(4L);
+        player.setMaxLevel(5L);
+        playerRepository.save(player);
+
+        PlayerStateResponse state = battleService.changeLevel("battle_nav_boss", 1);
+
+        assertEquals(5L, state.currentLevel());
+        assertEquals(1, state.currentSubLevel());
+        assertEquals(EconomyCurves.bossHp(5).toDisplayString(), state.currentMobHp().display());
+        assertTrue(state.bossTimeLeftSeconds() != null, "переход на боссовый уровень сразу ставит таймер");
+    }
+
+    @Test
     void regularLevelHasNoBossOnTenthSlot() {
         authService.register("battle_no_boss", "password123");
         Player player = playerRepository.findByUsername("battle_no_boss").orElseThrow();
-        player.setCurrentSubLevel(10); // уровень 1 (не кратен 5) — 10-я подлокация обычный моб
+        player.setCurrentSubLevel(10); // уровень 1 (не кратен 5) — 10-й обычный моб, боссовым не станет
         playerRepository.save(player);
 
         TapResponse response = battleService.tap("battle_no_boss", 10); // 10 x1 урона = ровно 10 HP
 
         assertFalse(response.bossDefeated());
-        assertTrue(response.leveledUp(), "10-й моб добит — уровень пройден и без босса");
+        assertTrue(response.leveledUp(), "10-й моб добит — уровень пройден, следующий (2) обычный");
         assertEquals(1, response.mobsKilled());
         assertEquals(2L, response.currentLevel());
     }

@@ -23,12 +23,12 @@ public class AvatarController {
     @PostMapping("/tap-damage/upgrade")
     public AvatarUpgradeResponse upgradeTapDamage(@Valid @RequestBody UpgradeAvatarRequest request,
                                                    Authentication authentication) {
-        return avatarService.upgradeTapDamage(authentication.getName(), request.levels());
+        return avatarService.upgradeTapDamage(authentication.getName(), request.mode());
     }
 
     @PostMapping("/autotap/upgrade")
     public AvatarUpgradeResponse upgradeAutotap(@Valid @RequestBody UpgradeAvatarRequest request,
                                                  Authentication authentication) {
-        return avatarService.upgradeAutotap(authentication.getName(), request.levels());
+        return avatarService.upgradeAutotap(authentication.getName(), request.mode());
     }
 }

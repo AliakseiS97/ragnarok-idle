@@ -19,6 +19,10 @@ public record PlayerStateResponse(
         List<PlayerHeroView> heroes,
         Boolean rebirthReady,
         String rebirthHint,
-        BigNumDto ashDropCollected
+        BigNumDto ashDropCollected,
+        // --- Мультипокупка тапа Аватара под текущий режим (сервер, античит) ---
+        Long tapBulkLevels,
+        BigNumDto tapBulkCost,
+        boolean tapBulkAffordable
 ) {
 }

@@ -1,7 +1,8 @@
 package com.ragnarok.idle.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.ragnarok.idle.economy.PurchaseMode;
+import jakarta.validation.constraints.NotNull;
 
-public record UpgradeHeroRequest(@Min(1) @Max(10_000) long levels) {
+/** Апгрейд героя пачкой: клиент шлёт режим (x1/x5/.../MAX), цену пачки считает сервер. */
+public record UpgradeHeroRequest(@NotNull PurchaseMode mode) {
 }

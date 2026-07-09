@@ -4,6 +4,8 @@ import com.ragnarok.idle.domain.Avatar;
 import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.dto.AvatarUpgradeResponse;
 import com.ragnarok.idle.dto.BigNumDto;
+import com.ragnarok.idle.economy.BulkPurchase;
+import com.ragnarok.idle.economy.PurchaseMode;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.PlayerRepository;
@@ -48,6 +50,16 @@ public class AvatarService {
         this.avatarRepository = avatarRepository;
     }
 
+    /** Мультипокупка улучшения тапа (см. {@link #resolveLevels}); цену пачки считает сервер. */
+    @Transactional
+    public AvatarUpgradeResponse upgradeTapDamage(String username, PurchaseMode mode) {
+        if (!mode.isMax()) {
+            return upgradeTapDamage(username, mode.count());
+        }
+        Avatar avatar = findAvatar(findPlayer(username).getId());
+        return upgradeTapDamage(username, resolveLevels(username, avatar.getTapDamageLevel(), mode));
+    }
+
     @Transactional
     public AvatarUpgradeResponse upgradeTapDamage(String username, long levels) {
         Player player = findPlayer(username);
@@ -59,7 +71,17 @@ public class AvatarService {
         playerRepository.save(player);
         avatarRepository.save(avatar);
 
-        return toResponse(avatar, cost, player.getGold());
+        return toResponse(avatar, levels, cost, player.getGold());
+    }
+
+    /** Мультипокупка улучшения автотапа (см. {@link #resolveLevels}); цену пачки считает сервер. */
+    @Transactional
+    public AvatarUpgradeResponse upgradeAutotap(String username, PurchaseMode mode) {
+        if (!mode.isMax()) {
+            return upgradeAutotap(username, mode.count());
+        }
+        Avatar avatar = findAvatar(findPlayer(username).getId());
+        return upgradeAutotap(username, resolveLevels(username, avatar.getAutotapLevel(), mode));
     }
 
     @Transactional
@@ -73,7 +95,18 @@ public class AvatarService {
         playerRepository.save(player);
         avatarRepository.save(avatar);
 
-        return toResponse(avatar, cost, player.getGold());
+        return toResponse(avatar, levels, cost, player.getGold());
+    }
+
+    /** MAX → сколько уровней тянет золото (у Аватара нет потолка уровня); 0 уровней → отказ. */
+    private long resolveLevels(String username, long currentLevel, PurchaseMode mode) {
+        Player player = findPlayer(username);
+        long levels = BulkPurchase.quote(AvatarService::upgradeCostFrom,
+                currentLevel, mode, player.getGold(), Long.MAX_VALUE).levels();
+        if (levels == 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough gold");
+        }
+        return levels;
     }
 
     private BigNum spendGoldForLevels(Player player, long currentLevel, long levels) {
@@ -90,10 +123,11 @@ public class AvatarService {
         return totalCost;
     }
 
-    private AvatarUpgradeResponse toResponse(Avatar avatar, BigNum goldSpent, BigNum goldRemaining) {
+    private AvatarUpgradeResponse toResponse(Avatar avatar, long levelsBought, BigNum goldSpent, BigNum goldRemaining) {
         return new AvatarUpgradeResponse(
                 avatar.getTapDamageLevel(),
                 avatar.getAutotapLevel(),
+                levelsBought,
                 BigNumDto.from(goldSpent),
                 BigNumDto.from(goldRemaining)
         );

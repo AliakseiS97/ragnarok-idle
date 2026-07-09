@@ -4,10 +4,14 @@ import com.ragnarok.idle.domain.Avatar;
 import com.ragnarok.idle.domain.Hero;
 import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.domain.PlayerHero;
+import com.ragnarok.idle.domain.Saga;
+import com.ragnarok.idle.domain.SagaRank;
 import com.ragnarok.idle.dto.BigNumDto;
 import com.ragnarok.idle.dto.PlayerHeroView;
 import com.ragnarok.idle.dto.PlayerStateResponse;
+import com.ragnarok.idle.economy.BulkPurchase;
 import com.ragnarok.idle.economy.EconomyCurves;
+import com.ragnarok.idle.economy.PurchaseMode;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.AvatarRepository;
 import com.ragnarok.idle.repository.HeroRepository;
@@ -19,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -57,11 +62,17 @@ public class PlayerService {
 
     @Transactional
     public PlayerStateResponse getState(String username) {
-        return getState(username, BigNum.ZERO);
+        return getState(username, PurchaseMode.X1, BigNum.ZERO);
+    }
+
+    /** @param mode режим мультипокупки для расчёта цены пачки на кнопках апгрейда (герои + тап Аватара). */
+    @Transactional
+    public PlayerStateResponse getState(String username, PurchaseMode mode) {
+        return getState(username, mode, BigNum.ZERO);
     }
 
     /** @param extraAsh Пепел, дропнутый ВНЕ этого тика (напр. большой батч {@link #skipTime}) — добавляется к ashDropCollected. */
-    private PlayerStateResponse getState(String username, BigNum extraAsh) {
+    private PlayerStateResponse getState(String username, PurchaseMode mode, BigNum extraAsh) {
         Player player = playerRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
 
@@ -86,6 +97,19 @@ public class PlayerService {
                             ? dpsByHero.getOrDefault(hero.getId(), BigNum.ZERO)
                             : hero.getBaseDps();
                     long level = playerHero != null ? playerHero.getLevel() : 0L;
+
+                    // Сага (GDD §3.8): у некупленных — стартовый ранг 1 «Обычный» I для предпросмотра.
+                    int sagaRank = playerHero != null ? playerHero.getSagaRank() : Saga.FIRST_RANK;
+                    int sagaSubStep = playerHero != null ? playerHero.getSagaSubStep() : Saga.FIRST_SUB_STEP;
+                    SagaRank rank = SagaRank.byRank(sagaRank);
+                    boolean atLevelCap = playerHero != null && level >= rank.getLevelCap();
+
+                    // Цена пачки под выбранный режим — считаем только для купленных (у остальных кнопка «Купить»).
+                    BulkView bulk = playerHero != null
+                            ? bulkView(lvl -> HeroService.upgradeCostFrom(hero, lvl),
+                                    level, mode, player.getGold(), rank.getLevelCap())
+                            : BulkView.NONE;
+
                     return new PlayerHeroView(
                             hero.getId(),
                             hero.getName(),
@@ -94,7 +118,17 @@ public class PlayerService {
                             level,
                             BigNumDto.from(hero.getPrice()),
                             BigNumDto.from(HeroService.upgradeCostFrom(hero, Math.max(level, 1))),
-                            BigNumDto.from(heroDps)
+                            BigNumDto.from(heroDps),
+                            sagaRank,
+                            rank.getDisplayName(),
+                            sagaSubStep,
+                            Saga.toRoman(sagaSubStep),
+                            rank.getColor(),
+                            rank.getLevelCap(),
+                            atLevelCap,
+                            bulk.levels(),
+                            BigNumDto.from(bulk.cost()),
+                            bulk.affordable()
                     );
                 })
                 .toList();
@@ -105,6 +139,10 @@ public class PlayerService {
         boolean rebirthReady = hero15Level >= RebirthService.REBIRTH_GATE_HERO_LEVEL;
         String rebirthHint = rebirthReady ? null
                 : "Нужен Ледяной ётун %d ур. (сейчас %d)".formatted(RebirthService.REBIRTH_GATE_HERO_LEVEL, hero15Level);
+
+        // Цена пачки улучшений тапа Аватара под выбранный режим (у Аватара нет потолка уровня).
+        BulkView tapBulk = bulkView(AvatarService::upgradeCostFrom,
+                avatar.getTapDamageLevel(), mode, player.getGold(), Long.MAX_VALUE);
 
         return new PlayerStateResponse(
                 player.getCurrentLevel(),
@@ -123,8 +161,28 @@ public class PlayerService {
                 heroViews,
                 rebirthReady,
                 rebirthHint,
-                BigNumDto.from(ashDropCollected)
+                BigNumDto.from(ashDropCollected),
+                tapBulk.levels(),
+                BigNumDto.from(tapBulk.cost()),
+                tapBulk.affordable()
         );
+    }
+
+    /**
+     * Считает цену пачки под режим для показа на кнопке (сервер — единственный источник цены, античит).
+     * Доступность: уровней &gt; 0, золота хватает на всю пачку и она не пробивает потолок (стену Саги).
+     */
+    private BulkView bulkView(LongFunction<BigNum> costOf, long level, PurchaseMode mode, BigNum gold, long cap) {
+        BulkPurchase.Quote quote = BulkPurchase.quote(costOf, level, mode, gold, cap);
+        boolean affordable = quote.levels() > 0
+                && gold.gte(quote.totalCost())
+                && level + quote.levels() <= cap;
+        return new BulkView(quote.levels(), quote.totalCost(), affordable);
+    }
+
+    /** Цена пачки для UI: сколько уровней, суммарная цена и доступна ли покупка целиком. */
+    private record BulkView(long levels, BigNum cost, boolean affordable) {
+        static final BulkView NONE = new BulkView(0, BigNum.ZERO, false);
     }
 
     /** Остаток таймера босса для UI; null — игрок не на боссовом уровне. */
@@ -157,7 +215,7 @@ public class PlayerService {
         player.setLastCollectedAt(LocalDateTime.now());
         playerRepository.save(player);
 
-        return getState(username, ashGained);
+        return getState(username, PurchaseMode.X1, ashGained);
     }
 
     /** Результат тика пассивного DPS: офлайн-золото и Пепел, дропнутый (если) во время онлайн-тика. */

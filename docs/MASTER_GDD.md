@@ -93,10 +93,10 @@ critFactor = critDamage если roll < critChance, иначе 1
 ## 3.5. Пассивный DPS героев
 Для каждого героя:
 ```
-heroDPS = baseHeroDPS × dpsGrowth^(heroLevel-1) × milestoneMult(heroLevel) × rarityMult(rarity)
+heroDPS = baseHeroDPS × dpsGrowth^(heroLevel-1) × milestoneMult(heroLevel) × sagaMult(rank, subStep)
 ```
 - `baseHeroDPS` — из seed (у каждого свой), `dpsGrowth = 1.1` (+10%/ур., было 1.08; DPS округляется до ближайшего целого).
-- `milestoneMult` — §3.7. `rarityMult` — §3.8.
+- `milestoneMult` — §3.7. `sagaMult` — §3.8 (бывш. `rarityMult`).
 
 **Агрегация (порядок важен):**
 ```
@@ -124,12 +124,44 @@ milestoneMult(level) =
 ```
 Контроль: золотой герой ур.1000 ≈ ×10^6.5; не-золотой ур.1000 ≈ ×10^7.9; на 50k — ×10^190 / ×10^260. Именно эти множители «догоняют» HP-кривую. **Требует big-number.** Финал — плейтест.
 
-## 3.8. Редкость (50 уровней)
+## 3.8. Сага (бывш. «редкость»)
+Прогресс героя вне уровня прокачки. У каждого героя две координаты: **ранг** (1..N) и **под-ступень** (I..X внутри ранга).
+
+**Ранги и потолок уровня (стена).** Ранг задаёт максимальный уровень героя — «стену»: качать за потолок нельзя, пока не поднимешь Сагу. Это ключевая механика прогрессии.
+
+| # | Ранг | Потолок уровня |
+|---|---|---|
+| 1 | Обычный | 500 |
+| 2 | Редкий | 1 000 |
+| 3 | Легендарный | 2 500 |
+| 4 | Мифический | 5 000 |
+| 5 | Божественный | 10 000 |
+| 6 | Асгардский | 20 000 |
+| 7 | Изначальный | 30 000 |
+
+Названия и потолки — именованные константы (`SagaRank`), правятся в одном месте.
+
+**DPS-множитель Саги (только этот герой):**
 ```
-rarityMult(r) = (1 + rarityStep)^r      // rarityStep = 0.05, r ∈ [0..50]
+sagaMult = 1 + subStepBonus × (subStep − 1) + rankBonus × (rank − 1)
+           subStepBonus = 0.25 (+25% за под-ступень)   rankBonus = 5.0 (+500% за ранг)
 ```
-- Отображение: 5 рамок × 10 ступеней (римские I–X внутри рамки; X → новая рамка, ступень→I).
-- Обнуляется сжиганием. Разбор редкого героя даёт бонус-осколки = `вложено × 0.6` (всегда < вложенного → не эксплойт).
+- +25% за каждую пройденную под-ступень внутри ранга (I→X);
+- +500% РАЗОВО при переходе на новый ранг.
+- Монотонно растёт даже при сбросе под-ступени на I при ранг-апе (Обычный X = ×3.25 → Редкий I = ×6.0).
+- Множитель — по месту `rarityMult` в формуле §3.5 (личный, до тим-бонуса баферов и глобального Пепла).
+
+**Отображение:** ранг (название + цвет-рамка) + под-ступень римской цифрой (I–X). X → новый ранг, ступень→I.
+
+**Задел на будущее (НЕ в Этапе 1):** после 7-го ранга — ещё 3 уровня под слоты экипировки (сапоги/штаны/нагрудник/перчатки). Архитектура не закладывает «ровно 7 рангов»: число рангов = длина конфигурации.
+
+**Повышение Саги.**
+- *Этап 1 (текущий) — ЗАГЛУШКА:* ручная кнопка «Повысить Сагу», один клик = +1 под-ступень, бесплатно; условие — герой куплен. Для проверки механики.
+- *Этап 2 — «Клятва на крови»:* реальный ритуал повышения — жертва других героев, кулдаун 24 ч, растущая цена. Заменит заглушку.
+
+**Разбор редкого героя** (Спринт 3, костёр): бонус-осколки = `вложено × 0.6` (всегда < вложенного → не эксплойт).
+
+> Прим.: далее по документу «редкость» = старое название Саги (дневной босс, слот шахты, гача — «дают редкость» = «двигают Сагу»).
 
 ## 3.9. Перерождение и Пепел
 Ребёрт доступен с `minRebirthLevel = 100` (артефакт поднимает старт вплоть до 5000).
@@ -327,7 +359,7 @@ Player(id, username, createdAt, maxLevel, currentLevel,
 Avatar(playerId, tapDamageLvl, autotapLvl, hp, critChance, critDamage, armor, regen, skillCooldowns:json)
 Hero(id, name, group, type, baseDps:BigNum, skillCode, price, priceCurrency,
      nonSacrificable:bool, nonGold:bool, animated:bool)          // справочник (seed)
-PlayerHero(id, playerId, heroId, level, rarity(0..50), shards, activated:bool, inMine:bool)
+PlayerHero(id, playerId, heroId, level, sagaRank(1..N), sagaSubStep(1..10), shards, activated:bool, inMine:bool)  // sagaRank/sagaSubStep — Сага §3.8 (бывш. rarity 0..50)
 Bloodline(childHeroId, parentHeroId)                              // порядок покупки богов
 CraftRecipe(id, tier, inputsJson, outputHeroId, hidden:bool)      // костёр T1..T3 + скрытые
 Artifact(id, name, effectCode, currency)                         // Пепел/Короны
@@ -354,7 +386,8 @@ POST /battle/tap               {taps} -> {damageDealt, mobsKilled, gold, levelUp
 POST /battle/skill             {heroId|avatarSkill} -> {effectApplied, cooldownUntil}
 POST /battle/boss/shield-hit   {hits} -> {shieldLeft, bossHpLeft}
 POST /heroes/{id}/buy          -> {playerHero}
-POST /heroes/{id}/upgrade      {levels} -> {playerHero, goldSpent}
+POST /heroes/{id}/upgrade      {levels} -> {playerHero, goldSpent}   // блок при упоре в потолок ранга Саги §3.8
+POST /heroes/{id}/saga/promote -> {sagaRank, sagaSubStep}            // Этап 1: заглушка +1 под-ступень; Этап 2 — «Клятва на крови»
 POST /heroes/{id}/activate     -> активация не-золотого героя
 POST /rebirth                  -> {ashGained, newAshMultiplier}
 POST /forge/burn-hero          {playerHeroId} -> {resultShards|deadHero}

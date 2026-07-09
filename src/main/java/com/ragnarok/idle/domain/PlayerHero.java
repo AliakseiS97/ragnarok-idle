@@ -29,6 +29,17 @@ public class PlayerHero {
     @Column(nullable = false)
     private boolean activated;
 
+    /**
+     * Ранг Саги 1..N (GDD §3.8, см. {@link SagaRank}). Задаёт потолок уровня («стену») и множитель DPS.
+     * Свежекупленный герой — ранг 1 «Обычный».
+     */
+    @Column(name = "saga_rank", nullable = false)
+    private int sagaRank = Saga.FIRST_RANK;
+
+    /** Под-ступень Саги I..X внутри текущего ранга (1..{@link Saga#SUB_STEPS_PER_RANK}). */
+    @Column(name = "saga_sub_step", nullable = false)
+    private int sagaSubStep = Saga.FIRST_SUB_STEP;
+
     public Long getId() {
         return id;
     }
@@ -63,5 +74,21 @@ public class PlayerHero {
 
     public void setActivated(boolean activated) {
         this.activated = activated;
+    }
+
+    public int getSagaRank() {
+        return sagaRank;
+    }
+
+    public void setSagaRank(int sagaRank) {
+        this.sagaRank = sagaRank;
+    }
+
+    public int getSagaSubStep() {
+        return sagaSubStep;
+    }
+
+    public void setSagaSubStep(int sagaSubStep) {
+        this.sagaSubStep = sagaSubStep;
     }
 }

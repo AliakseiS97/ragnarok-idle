@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\":\"🔄 Синхронизация ПК: сделай git pull перед работой (git push — в конце сессии).\",\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Пользователь работает на двух ПК и просил напоминать про синхронизацию: напомни сделать git pull в начале сессии и git push в конце.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

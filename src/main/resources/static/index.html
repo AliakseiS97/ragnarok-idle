@@ -84,6 +84,17 @@
     }
     button:disabled { opacity: 0.4; cursor: default; }
 
+    /* переключатель режима мультипокупки */
+    #purchaseModeBar { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+    #purchaseModeBar .mode-label { font-size: 0.75rem; color: var(--text-dim); margin-right: 6px; }
+    .mode-btn { padding: 4px 9px; font-size: 0.8rem; }
+    .mode-btn.active {
+        border-color: var(--rune);
+        color: var(--bg);
+        background: var(--rune);
+        box-shadow: 0 0 8px rgba(201,162,75,0.4);
+    }
+
     /* --- game --- */
     #gameScreen { width: 100%; max-width: 640px; }
 
@@ -141,8 +152,11 @@
     .hero-icon { font-size: 1.4rem; width: 28px; text-align: center; }
     .hero-name { font-weight: bold; }
     .hero-meta { font-size: 0.75rem; color: var(--text-dim); }
+    .hero-saga { font-size: 0.72rem; font-weight: bold; margin-top: 2px; }
+    .hero-saga .wall { color: var(--danger); }
     .hero-info { flex: 1; min-width: 0; }
-    .hero-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .hero-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .hero-actions .saga-btn { border-color: var(--rune-dim); color: var(--rune); }
 
     #rebirthArea { text-align: center; margin-bottom: 10px; }
     #rebirthArea button { border-color: var(--danger); color: #e08a87; }
@@ -218,6 +232,11 @@
         <button id="skip50Button">⏩ Прокрутить 50 часов (тест)</button>
     </div>
 
+    <div id="purchaseModeBar" class="hero-panel">
+        <span class="mode-label">Режим покупки:</span>
+        <span id="modeButtons"></span>
+    </div>
+
     <div id="avatarPanel" class="hero-panel">
         <h2>Аватар</h2>
         <div class="hero-row" id="avatarRow">
@@ -244,6 +263,36 @@
     var authMode = 'login';
     var pollTimer = null;
     var lastTotalDps = '0';
+
+    // Режим мультипокупки — общий для всех героев и Аватара. Клиент шлёт РЕЖИМ, цену пачки
+    // считает сервер (античит): подписи/доступность кнопок берём из bulk*-полей /player/me.
+    var PURCHASE_MODES = ['X1', 'X5', 'X10', 'X25', 'X50', 'X100', 'MAX'];
+    var purchaseMode = 'X1';
+
+    function modeLabel(mode) { return mode === 'MAX' ? 'MAX' : mode.replace('X', '×'); }
+
+    // подпись кнопки апгрейда: "<prefix> ×N (цена)" — N и цена пачки приходят с сервера
+    function upgradeLabel(prefix, levels, costDisplay) {
+        var count = purchaseMode === 'MAX' ? 'MAX ×' + levels : '×' + levels;
+        return prefix + ' ' + count + ' (' + costDisplay + ')';
+    }
+
+    function renderModeButtons() {
+        var box = document.getElementById('modeButtons');
+        box.innerHTML = '';
+        PURCHASE_MODES.forEach(function (mode) {
+            var btn = document.createElement('button');
+            btn.className = 'mode-btn' + (mode === purchaseMode ? ' active' : '');
+            btn.textContent = modeLabel(mode);
+            btn.addEventListener('click', function () {
+                purchaseMode = mode;
+                renderModeButtons();
+                refreshState(); // сразу пересчитать цены пачки под новый режим
+            });
+            box.appendChild(btn);
+        });
+    }
+    renderModeButtons();
 
     // Сиквенс-guard от гонки рендера: поллинг раз в 1с идёт независимо от действий игрока
     // (ребёрт, тап, покупка героя), и ответ на СТАРЫЙ запрос может прийти ПОСЛЕ ответа на новый —
@@ -326,7 +375,7 @@
     // ---- state polling ----
     function refreshState() {
         var seq = beginRequest();
-        api('/player/me', 'GET').then(function (state) {
+        api('/player/me?mode=' + purchaseMode, 'GET').then(function (state) {
             if (isLatest(seq)) renderState(state);
         }).catch(function (err) { showError(err.message); });
     }
@@ -367,8 +416,10 @@
 
         document.getElementById('avatarMeta').textContent =
             'ур. ' + state.tapDamageLevel + ' · урон/тап ' + state.tapDamage.display;
-        document.getElementById('avatarUpgradeButton').textContent =
-            'Улучшить тап (' + state.tapUpgradeCost.display + ')';
+        var avatarUpgradeButton = document.getElementById('avatarUpgradeButton');
+        avatarUpgradeButton.textContent =
+            upgradeLabel('Улучшить тап', state.tapBulkLevels, state.tapBulkCost.display);
+        avatarUpgradeButton.disabled = !state.tapBulkAffordable;
 
         var rebirthButton = document.getElementById('rebirthButton');
         rebirthButton.disabled = !state.rebirthReady;
@@ -382,7 +433,7 @@
     }
 
     document.getElementById('avatarUpgradeButton').addEventListener('click', function () {
-        api('/avatar/tap-damage/upgrade', 'POST', { levels: 1 })
+        api('/avatar/tap-damage/upgrade', 'POST', { mode: purchaseMode })
             .then(refreshState)
             .catch(function (err) { showError(err.message); });
     });
@@ -401,9 +452,18 @@
 
             var info = document.createElement('div');
             info.className = 'hero-info';
+            var sagaLine = '';
+            if (hero.owned) {
+                // маркер ранга Саги: цветной ◆ + название ранга + под-ступень римской + потолок-«стена»
+                var wall = hero.atLevelCap ? ' · <span class="wall">🧱 СТЕНА</span>' : '';
+                sagaLine = '<div class="hero-saga" style="color:' + hero.sagaColor + '">◆ ' +
+                    hero.sagaRankName + ' ' + hero.sagaSubStepRoman +
+                    ' · потолок ' + hero.sagaLevelCap + wall + '</div>';
+            }
             info.innerHTML =
                 '<div class="hero-name">' + hero.name + '</div>' +
-                '<div class="hero-meta">ур. ' + hero.level + ' · DPS ' + hero.dps.display + '</div>';
+                '<div class="hero-meta">ур. ' + hero.level + ' · DPS ' + hero.dps.display + '</div>' +
+                sagaLine;
             row.appendChild(info);
 
             var actions = document.createElement('div');
@@ -420,13 +480,29 @@
                 actions.appendChild(buyBtn);
             } else {
                 var upBtn = document.createElement('button');
-                upBtn.textContent = 'Улучшить (' + hero.upgradeCost.display + ')';
+                upBtn.textContent = hero.atLevelCap
+                    ? '⛔ Потолок ' + hero.sagaLevelCap
+                    : upgradeLabel('Улучшить', hero.bulkLevels, hero.bulkCost.display);
+                // блок: у стены Саги или не хватает золота на всю пачку (частичной покупки нет)
+                upBtn.disabled = hero.atLevelCap || !hero.bulkAffordable;
                 upBtn.addEventListener('click', function () {
-                    api('/heroes/' + hero.heroId + '/upgrade', 'POST', { levels: 1 })
+                    api('/heroes/' + hero.heroId + '/upgrade', 'POST', { mode: purchaseMode })
                         .then(refreshState)
                         .catch(function (err) { showError(err.message); });
                 });
                 actions.appendChild(upBtn);
+
+                // Повышение Саги (Этап 1 — заглушка: +1 под-ступень бесплатно;
+                // реальный механизм «Клятва на крови» — Этап 2)
+                var sagaBtn = document.createElement('button');
+                sagaBtn.className = 'saga-btn';
+                sagaBtn.textContent = 'Повысить Сагу';
+                sagaBtn.addEventListener('click', function () {
+                    api('/heroes/' + hero.heroId + '/saga/promote', 'POST', {})
+                        .then(refreshState)
+                        .catch(function (err) { showError(err.message); });
+                });
+                actions.appendChild(sagaBtn);
             }
             row.appendChild(actions);
             container.appendChild(row);

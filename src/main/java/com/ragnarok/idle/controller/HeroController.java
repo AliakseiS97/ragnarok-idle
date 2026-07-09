@@ -1,8 +1,10 @@
 package com.ragnarok.idle.controller;
 
 import com.ragnarok.idle.dto.PlayerHeroResponse;
+import com.ragnarok.idle.dto.SagaPromoteResponse;
 import com.ragnarok.idle.dto.UpgradeHeroRequest;
 import com.ragnarok.idle.service.HeroService;
+import com.ragnarok.idle.service.SagaService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class HeroController {
 
     private final HeroService heroService;
+    private final SagaService sagaService;
 
-    public HeroController(HeroService heroService) {
+    public HeroController(HeroService heroService, SagaService sagaService) {
         this.heroService = heroService;
+        this.sagaService = sagaService;
     }
 
     @PostMapping("/{id}/buy")
@@ -29,6 +33,15 @@ public class HeroController {
     @PostMapping("/{id}/upgrade")
     public PlayerHeroResponse upgrade(@PathVariable("id") Long id, @Valid @RequestBody UpgradeHeroRequest request,
                                        Authentication authentication) {
-        return heroService.upgrade(authentication.getName(), id, request.levels());
+        return heroService.upgrade(authentication.getName(), id, request.mode());
+    }
+
+    /**
+     * Повышение Саги героя (GDD §3.8). Этап 1 — заглушка: +1 под-ступень бесплатно.
+     * Реальный механизм — «Клятва на крови» (жертва героев, кулдаун 24ч) — Этап 2, см. {@link SagaService}.
+     */
+    @PostMapping("/{id}/saga/promote")
+    public SagaPromoteResponse promoteSaga(@PathVariable("id") Long id, Authentication authentication) {
+        return sagaService.promote(authentication.getName(), id);
     }
 }

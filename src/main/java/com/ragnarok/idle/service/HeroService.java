@@ -4,8 +4,12 @@ import com.ragnarok.idle.domain.Hero;
 import com.ragnarok.idle.domain.HeroType;
 import com.ragnarok.idle.domain.Player;
 import com.ragnarok.idle.domain.PlayerHero;
+import com.ragnarok.idle.domain.Saga;
+import com.ragnarok.idle.domain.SagaRank;
 import com.ragnarok.idle.dto.BigNumDto;
 import com.ragnarok.idle.dto.PlayerHeroResponse;
+import com.ragnarok.idle.economy.BulkPurchase;
+import com.ragnarok.idle.economy.PurchaseMode;
 import com.ragnarok.idle.math.BigNum;
 import com.ragnarok.idle.repository.HeroRepository;
 import com.ragnarok.idle.repository.PlayerHeroRepository;
@@ -68,7 +72,12 @@ public class HeroService {
 
         for (PlayerHero ph : owned) {
             Hero hero = heroesById.get(ph.getHeroId());
-            BigNum heroDps = hero.getBaseDps().multiply(BigNum.of(DPS_GROWTH).pow(ph.getLevel() - 1));
+            // heroDPS = baseDPS × dpsGrowth^(level-1) × sagaMult (личный множитель Саги, GDD §3.8/§3.5);
+            // тим-бонус баферов и глобальный Пепел домножаются ниже, уже поверх суммы.
+            BigNum sagaMult = Saga.dpsMultiplier(ph.getSagaRank(), ph.getSagaSubStep());
+            BigNum heroDps = hero.getBaseDps()
+                    .multiply(BigNum.of(DPS_GROWTH).pow(ph.getLevel() - 1))
+                    .multiply(sagaMult);
             rawDpsByHero.put(ph.getHeroId(), heroDps);
 
             if (hero.getType() == HeroType.BAFFER) {
@@ -117,7 +126,7 @@ public class HeroService {
         playerHero.setActivated(true);
         playerHeroRepository.save(playerHero);
 
-        return new PlayerHeroResponse(heroId, hero.getName(), 1L,
+        return new PlayerHeroResponse(heroId, hero.getName(), 1L, 1L,
                 BigNumDto.from(hero.getPrice()), BigNumDto.from(player.getGold()));
     }
 
@@ -126,12 +135,46 @@ public class HeroService {
         return hero.getPrice().multiply(BigNum.of(UPGRADE_COST_GROWTH).pow(currentLevel - 1)).ceil();
     }
 
+    /**
+     * Мультипокупка апгрейда (GDD §12.7: цену пачки считает сервер).
+     * Фикс. режим x5..x100 — ровно N уровней (сумма прогрессии; блок, если не хватает на все N).
+     * MAX — максимум уровней за текущее золото в пределах стены Саги; 0 уровней → отказ.
+     * Резолвит режим в число уровней и переиспользует основной {@link #upgrade(String, Long, long)}.
+     */
+    @Transactional
+    public PlayerHeroResponse upgrade(String username, Long heroId, PurchaseMode mode) {
+        if (!mode.isMax()) {
+            return upgrade(username, heroId, mode.count());
+        }
+        Player player = findPlayer(username);
+        Hero hero = findHero(heroId);
+        PlayerHero playerHero = playerHeroRepository.findByPlayerIdAndHeroId(player.getId(), heroId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Hero not bought yet"));
+
+        long levelCap = Saga.levelCap(playerHero.getSagaRank());
+        long levels = BulkPurchase.quote(lvl -> upgradeCostFrom(hero, lvl),
+                playerHero.getLevel(), mode, player.getGold(), levelCap).levels();
+        if (levels == 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough gold");
+        }
+        return upgrade(username, heroId, levels);
+    }
+
     @Transactional
     public PlayerHeroResponse upgrade(String username, Long heroId, long levels) {
         Player player = findPlayer(username);
         Hero hero = findHero(heroId);
         PlayerHero playerHero = playerHeroRepository.findByPlayerIdAndHeroId(player.getId(), heroId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Hero not bought yet"));
+
+        // Стена Саги (GDD §3.8): герой не качается за потолок своего ранга, пока не поднимет Сагу.
+        long levelCap = Saga.levelCap(playerHero.getSagaRank());
+        if (playerHero.getLevel() + levels > levelCap) {
+            SagaRank currentRank = SagaRank.byRank(playerHero.getSagaRank());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Достигнут потолок ранга Саги (%s, %d). Повысьте Сагу, чтобы пробить стену."
+                            .formatted(currentRank.getDisplayName(), levelCap));
+        }
 
         BigNum totalCost = BigNum.ZERO;
         for (long i = 0; i < levels; i++) {
@@ -147,7 +190,7 @@ public class HeroService {
         playerRepository.save(player);
         playerHeroRepository.save(playerHero);
 
-        return new PlayerHeroResponse(heroId, hero.getName(), playerHero.getLevel(),
+        return new PlayerHeroResponse(heroId, hero.getName(), playerHero.getLevel(), levels,
                 BigNumDto.from(totalCost), BigNumDto.from(player.getGold()));
     }
 

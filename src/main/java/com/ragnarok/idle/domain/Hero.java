@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 /**
  * Справочник героев (seed из economy_constants.md). id — фиксированный номер
@@ -14,6 +15,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "hero")
+@Getter
 public class Hero {
 
     @Id
@@ -38,32 +40,4 @@ public class Hero {
     /** Эйнхерий (id=11): усиливает бонус баферов ×3 (GDD §3.5). */
     @Column(name = "special_baffer", nullable = false)
     private boolean specialBaffer;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public HeroType getType() {
-        return type;
-    }
-
-    public BigNum getBaseDps() {
-        return baseDps;
-    }
-
-    public String getSkillCode() {
-        return skillCode;
-    }
-
-    public BigNum getPrice() {
-        return price;
-    }
-
-    public boolean isSpecialBaffer() {
-        return specialBaffer;
-    }
 }

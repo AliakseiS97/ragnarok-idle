@@ -1,5 +1,7 @@
 package com.ragnarok.idle.domain;
 
+import lombok.Getter;
+
 /**
  * Ранг Саги героя — «рамка», задающая потолок уровня («стену») и визуальный маркер.
  * Система «Сага» (бывш. «редкость», GDD §3.8): у каждого героя есть ранг (1..N) и под-ступень
@@ -16,6 +18,7 @@ package com.ragnarok.idle.domain;
  * <p>Названия, потолки и цвета-маркеры — здесь, чтобы баланс/визуал правились в одном месте.
  * Цвет — временный индикатор-заглушка под будущие рамки.
  */
+@Getter
 public enum SagaRank {
 
     COMMON("Обычный", 500, "#9aa4b0"),
@@ -27,27 +30,17 @@ public enum SagaRank {
     PRIMORDIAL("Изначальный", 30_000, "#00e5ff");
 
     private final String displayName;
+
+    /** Максимальный уровень героя в этом ранге — «стена», которую пробивают повышением Саги. */
     private final long levelCap;
+
+    /** Цвет-маркер ранга для UI (заглушка под будущие рамки). */
     private final String color;
 
     SagaRank(String displayName, long levelCap, String color) {
         this.displayName = displayName;
         this.levelCap = levelCap;
         this.color = color;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /** Максимальный уровень героя в этом ранге — «стена», которую пробивают повышением Саги. */
-    public long getLevelCap() {
-        return levelCap;
-    }
-
-    /** Цвет-маркер ранга для UI (заглушка под будущие рамки). */
-    public String getColor() {
-        return color;
     }
 
     /** Номер ранга 1..N (в БД хранится именно он, а не ordinal). */

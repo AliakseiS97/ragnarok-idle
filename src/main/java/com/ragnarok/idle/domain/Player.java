@@ -9,9 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "player")
+@Getter
+@Setter
 public class Player {
 
     @Id
@@ -66,7 +70,7 @@ public class Player {
 
     /** Автопереход: true — обычная прогрессия (мобы → босс → след. уровень); false — фарм-цикл мобов уровня. */
     @Column(name = "auto_advance", nullable = false)
-    private Boolean autoAdvance = true;
+    private boolean autoAdvance = true;
 
     /** Начало текущего боя с боссом (таймер 30 сек); null — игрок не на боссе. */
     @Column(name = "boss_started_at")
@@ -75,112 +79,4 @@ public class Player {
     /** Сколько раз игрок перерождался. Дроп Пепла с мобов открывается только при rebirthCount >= 1. */
     @Column(name = "rebirth_count", nullable = false)
     private Long rebirthCount = 0L;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public void setCurrentLevel(Long currentLevel) {
-        this.currentLevel = currentLevel;
-    }
-
-    public Long getMaxLevel() {
-        return maxLevel;
-    }
-
-    public void setMaxLevel(Long maxLevel) {
-        this.maxLevel = maxLevel;
-    }
-
-    public BigNum getGold() {
-        return gold;
-    }
-
-    public void setGold(BigNum gold) {
-        this.gold = gold;
-    }
-
-    public BigNum getAsh() {
-        return ash;
-    }
-
-    public void setAsh(BigNum ash) {
-        this.ash = ash;
-    }
-
-    public LocalDateTime getLastCollectedAt() {
-        return lastCollectedAt;
-    }
-
-    public void setLastCollectedAt(LocalDateTime lastCollectedAt) {
-        this.lastCollectedAt = lastCollectedAt;
-    }
-
-    public Integer getCurrentSubLevel() {
-        return currentSubLevel;
-    }
-
-    public void setCurrentSubLevel(Integer currentSubLevel) {
-        this.currentSubLevel = currentSubLevel;
-    }
-
-    public BigNum getCurrentMobHp() {
-        return currentMobHp;
-    }
-
-    public void setCurrentMobHp(BigNum currentMobHp) {
-        this.currentMobHp = currentMobHp;
-    }
-
-    public boolean isAutoAdvance() {
-        return Boolean.TRUE.equals(autoAdvance);
-    }
-
-    public void setAutoAdvance(boolean autoAdvance) {
-        this.autoAdvance = autoAdvance;
-    }
-
-    public LocalDateTime getBossStartedAt() {
-        return bossStartedAt;
-    }
-
-    public void setBossStartedAt(LocalDateTime bossStartedAt) {
-        this.bossStartedAt = bossStartedAt;
-    }
-
-    public Long getRebirthCount() {
-        return rebirthCount;
-    }
-
-    public void setRebirthCount(Long rebirthCount) {
-        this.rebirthCount = rebirthCount;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Боевая ветка Аватара (фарм). Дуэльные пассивы (HP/крит/броня/рег.) —
@@ -12,6 +14,8 @@ import jakarta.persistence.Version;
  */
 @Entity
 @Table(name = "avatar")
+@Getter
+@Setter
 public class Avatar {
 
     @Id
@@ -27,28 +31,4 @@ public class Avatar {
 
     @Column(name = "autotap_level", nullable = false)
     private Long autotapLevel;
-
-    public Long getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
-    }
-
-    public Long getTapDamageLevel() {
-        return tapDamageLevel;
-    }
-
-    public void setTapDamageLevel(Long tapDamageLevel) {
-        this.tapDamageLevel = tapDamageLevel;
-    }
-
-    public Long getAutotapLevel() {
-        return autotapLevel;
-    }
-
-    public void setAutotapLevel(Long autotapLevel) {
-        this.autotapLevel = autotapLevel;
-    }
 }

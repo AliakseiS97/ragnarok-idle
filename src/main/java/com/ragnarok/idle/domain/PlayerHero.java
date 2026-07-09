@@ -7,10 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 
 /** Связь игрок-герой. Строка создаётся при первой покупке героя. */
 @Entity
 @Table(name = "player_hero", uniqueConstraints = @UniqueConstraint(columnNames = {"player_id", "hero_id"}))
+@Getter
+@Setter
 public class PlayerHero {
 
     @Id
@@ -39,56 +43,4 @@ public class PlayerHero {
     /** Под-ступень Саги I..X внутри текущего ранга (1..{@link Saga#SUB_STEPS_PER_RANK}). */
     @Column(name = "saga_sub_step", nullable = false)
     private int sagaSubStep = Saga.FIRST_SUB_STEP;
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
-    }
-
-    public Long getHeroId() {
-        return heroId;
-    }
-
-    public void setHeroId(Long heroId) {
-        this.heroId = heroId;
-    }
-
-    public Long getLevel() {
-        return level;
-    }
-
-    public void setLevel(Long level) {
-        this.level = level;
-    }
-
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
-    public int getSagaRank() {
-        return sagaRank;
-    }
-
-    public void setSagaRank(int sagaRank) {
-        this.sagaRank = sagaRank;
-    }
-
-    public int getSagaSubStep() {
-        return sagaSubStep;
-    }
-
-    public void setSagaSubStep(int sagaSubStep) {
-        this.sagaSubStep = sagaSubStep;
-    }
 }

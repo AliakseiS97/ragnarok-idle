@@ -1,0 +1,80 @@
+[
+  {
+    "artifactId": "artifact_mjolnir",
+    "nameRu": "Мьёльнир",
+    "nameOriginal": "Mjölnir",
+    "phonetic": "MYOL-neer",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_thor",
+    "effect": "Урон по боссам +50%; удар молнии по всем защитникам раз в 30 сек",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "Þá gaf hann Þór hamarinn ok sagði at hann mætti slá svá stórt sem hann vildi, hvat sem fyrir væri, at eigi mundi hamarrinn bila.",
+    "lorePurpose": "A tool for hallowing (vigi), protection, and the destruction of chaotic forces.",
+    "artPrompt": "Legendary Norse artifact Mjölnir, mobile game item card, glowing runes, epic fantasy style, dark background, A tool for hallowing (vigi), protection, and the destruction"
+  },
+  {
+    "artifactId": "artifact_gungnir",
+    "nameRu": "Гунгнир",
+    "nameOriginal": "Gungnir",
+    "phonetic": "GUNG-neer",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_odin",
+    "effect": "Умения не могут промахнуться; +30% силы умений",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "Á gler ok á gulli... á Gungnis oddi.",
+    "lorePurpose": "To focus the unwavering will, anchor sovereignty, and initiate the 'Great Work'.",
+    "artPrompt": "Legendary Norse artifact Gungnir, mobile game item card, glowing runes, epic fantasy style, dark background, To focus the unwavering will, anchor sovereignty, and initia"
+  },
+  {
+    "artifactId": "artifact_draupnir",
+    "nameRu": "Драупнир",
+    "nameOriginal": "Draupnir",
+    "phonetic": "DROWP-neer",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_odin",
+    "effect": "Каждые 9 минут удваивает золото, полученное за последнюю минуту",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "En Draupni fylgði sú náttúra at hina níundu hverja nótt drupu af honum átta hringar jafnhöfgir.",
+    "lorePurpose": "To ensure the multiplication of wealth through consistency and the Gifting Cycle.",
+    "artPrompt": "Legendary Norse artifact Draupnir, mobile game item card, glowing runes, epic fantasy style, dark background, To ensure the multiplication of wealth through consistency a"
+  },
+  {
+    "artifactId": "artifact_brisingamen",
+    "nameRu": "Брисингамен",
+    "nameOriginal": "Brísingamen",
+    "phonetic": "BREE-sing-ah-men",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_freyja",
+    "effect": "+40% ко всем бонусам героини-владелицы; очарование защитника на 10 сек",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "Vreið varð þá Freyja... Brísingamen brast í sundr.",
+    "lorePurpose": "To represent individual worth, social status, and the binding of the will.",
+    "artPrompt": "Legendary Norse artifact Brísingamen, mobile game item card, glowing runes, epic fantasy style, dark background, To represent individual worth, social status, and the bindin"
+  },
+  {
+    "artifactId": "artifact_skidbladnir",
+    "nameRu": "Скидбладнир",
+    "nameOriginal": "Skíðblaðnir",
+    "phonetic": "SKEETH-blath-neer",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_freyr",
+    "effect": "Экспедиции мгновенны; +25% наград экспедиций",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "Skíðblaðnir er beztr skipanna... má vefja hann saman sem dúk ok hafa í pungi sínum.",
+    "lorePurpose": "To ensure optimized logistics, organic growth, and the ability to pivot when environment changes.",
+    "artPrompt": "Legendary Norse artifact Skíðblaðnir, mobile game item card, glowing runes, epic fantasy style, dark background, To ensure optimized logistics, organic growth, and the abili"
+  },
+  {
+    "artifactId": "artifact_gjallarhorn",
+    "nameRu": "Гьяллархорн",
+    "nameOriginal": "Gjallarhorn",
+    "phonetic": "YALL-ar-horn",
+    "rarity": "LEGENDARY",
+    "ownerHeroId": "god_heimdallr",
+    "effect": "Предупреждает об умении босса за 3 сек; команда получает +20% урона на это время",
+    "setBonus": "В команде с владельцем: эффект артефакта x2",
+    "loreOriginal": "Hann hefir lúðr þann er Gjallarhorn heitir, ok heyrist blástr hans í alla heima.",
+    "lorePurpose": "Establishment of boundaries, alerting to critical failure (Ragnarök), and universal communication.",
+    "artPrompt": "Legendary Norse artifact Gjallarhorn, mobile game item card, glowing runes, epic fantasy style, dark background, Establishment of boundaries, alerting to critical failure (R"
+  }
+]

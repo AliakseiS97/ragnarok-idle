@@ -1,0 +1,1253 @@
+[
+  {
+    "heroId": "god_odin",
+    "nameRu": "Один",
+    "nameOriginal": "Óðinn",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "UTILITY",
+    "spheres": [
+      "Wisdom",
+      "Runes",
+      "War",
+      "Poetry",
+      "Sovereignty"
+    ],
+    "runeAnchor": "Ansuz (ᚨ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Одина",
+      "description": "-25% перезарядки умений команды; +100% опыта героев"
+    },
+    "visualSymbols": [
+      "Gungnir",
+      "Valknut",
+      "Two Ravens",
+      "The High Seat"
+    ],
+    "animals": [
+      "Ravens",
+      "Wolves"
+    ],
+    "colors": [
+      "Dark Blue",
+      "Gold"
+    ],
+    "direction": "North",
+    "loreOriginal": "Óðinn er æðstr ok ellztr Ásanna. Hann ræðr öllum hlutum, ok svá sem önnur goðin eru máttug, þá þjóna honum öll svá sem börn föður.",
+    "loreSource": "Gylfaginning, Ch. 20",
+    "artPrompt": "Norse god Óðinn, mobile game hero card art, symbols: Gungnir, Valknut, Two Ravens, color palette: Dark Blue, Gold, companion animals: Ravens, Wolves, epic fantasy style, dark background, rune Ansuz (ᚨ) glowing"
+  },
+  {
+    "heroId": "god_thor",
+    "nameRu": "Тор",
+    "nameOriginal": "Þórr",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "DPS",
+    "spheres": [
+      "Thunder",
+      "Strength",
+      "Protection",
+      "Hallowing"
+    ],
+    "runeAnchor": "Thurisaz (ᚦ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Тора",
+      "description": "+25% урона команды; каждый 20-й удар — сокрушение (x100 урон)"
+    },
+    "visualSymbols": [
+      "Mjölnir",
+      "Iron Gloves",
+      "Belt of Strength",
+      "The Oak Tree"
+    ],
+    "animals": [
+      "Goats",
+      "Bulls"
+    ],
+    "colors": [
+      "Deep Red",
+      "Iron Grey"
+    ],
+    "direction": "South",
+    "loreOriginal": "Sá er kallaðr Þórr eða Ása-Þórr. Hann er fremstr þeira, sá er kallaðr er Áss ok hergi hvílir. Hann er sterkastr allra goðanna ok manna.",
+    "loreSource": "Gylfaginning, Ch. 21",
+    "artPrompt": "Norse god Þórr, mobile game hero card art, symbols: Mjölnir, Iron Gloves, Belt of Strength, color palette: Deep Red, Iron Grey, companion animals: Goats, Bulls, epic fantasy style, dark background, rune Thurisaz (ᚦ) glowing"
+  },
+  {
+    "heroId": "god_baldr",
+    "nameRu": "Бальдр",
+    "nameOriginal": "Baldr",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "BUFFER",
+    "spheres": [
+      "Light",
+      "Wisdom",
+      "Purity",
+      "Reconciliation"
+    ],
+    "runeAnchor": "Sowilo (ᛋ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Бальдра",
+      "description": "+25% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "The Sun",
+      "White Light",
+      "Mistletoe"
+    ],
+    "animals": [
+      "Swans",
+      "White Horses"
+    ],
+    "colors": [
+      "Pure White",
+      "Bright Yellow"
+    ],
+    "direction": "The Zenith",
+    "loreOriginal": "Annarr sonr Óðins er Baldr, ok er frá honum gott at segja. Hann er beztr ok hann lofa allir.",
+    "loreSource": "Gylfaginning, Ch. 22",
+    "artPrompt": "Norse god Baldr, mobile game hero card art, symbols: The Sun, White Light, Mistletoe, color palette: Pure White, Bright Yellow, companion animals: Swans, White Horses, epic fantasy style, dark background, rune Sowilo (ᛋ) glowing"
+  },
+  {
+    "heroId": "god_tyr",
+    "nameRu": "Тюр",
+    "nameOriginal": "Týr",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "DPS",
+    "spheres": [
+      "Law",
+      "Justice",
+      "Heroic Victory",
+      "Sacrifice"
+    ],
+    "runeAnchor": "Tiwaz (ᛏ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Тюра",
+      "description": "+25% урона команды; каждый 20-й удар — сокрушение (x100 урон)"
+    },
+    "visualSymbols": [
+      "The Spear",
+      "The Severed Hand",
+      "The Sword"
+    ],
+    "animals": [
+      "Wolves",
+      "Hounds"
+    ],
+    "colors": [
+      "Crimson",
+      "Steel Grey"
+    ],
+    "direction": "North",
+    "loreOriginal": "Enn er sá Áss er Týr heitir. Hann er djarfastr ok bezt hugaðr, ok hann ræðr mjök sigri í orrostum.",
+    "loreSource": "Gylfaginning, Ch. 25",
+    "artPrompt": "Norse god Týr, mobile game hero card art, symbols: The Spear, The Severed Hand, The Sword, color palette: Crimson, Steel Grey, companion animals: Wolves, Hounds, epic fantasy style, dark background, rune Tiwaz (ᛏ) glowing"
+  },
+  {
+    "heroId": "god_heimdallr",
+    "nameRu": "Хеймдалль",
+    "nameOriginal": "Heimdallr",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "TANK",
+    "spheres": [
+      "Vigilance",
+      "Protection",
+      "Social Order",
+      "Boundaries"
+    ],
+    "runeAnchor": "Dagaz (ᛞ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Щит Хеймдалля",
+      "description": "+25% HP команды в осадах; блокирует 1 умение босса (кд 45 сек)"
+    },
+    "visualSymbols": [
+      "Gjallarhorn",
+      "Bifröst",
+      "The Ram"
+    ],
+    "animals": [
+      "Rams",
+      "White Horses"
+    ],
+    "colors": [
+      "White",
+      "Silver"
+    ],
+    "direction": "The Zenith",
+    "loreOriginal": "Heimdallr heitir einn. Hann er kallaðr hvíti Áss. Hann er mikill ok heilagr.",
+    "loreSource": "Gylfaginning, Ch. 27",
+    "artPrompt": "Norse god Heimdallr, mobile game hero card art, symbols: Gjallarhorn, Bifröst, The Ram, color palette: White, Silver, companion animals: Rams, White Horses, epic fantasy style, dark background, rune Dagaz (ᛞ) glowing"
+  },
+  {
+    "heroId": "god_loki",
+    "nameRu": "Локи",
+    "nameOriginal": "Loki",
+    "pantheon": "Æsir",
+    "rarity": "LEGENDARY",
+    "role": "TRICKSTER",
+    "spheres": [
+      "Change",
+      "Wit",
+      "Chaos",
+      "Ingenuity"
+    ],
+    "runeAnchor": "Kenaz (ᚲ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Козни Локи",
+      "description": "Дебафф защитникам босса: -25% урона и брони на 12 сек"
+    },
+    "visualSymbols": [
+      "The Mask",
+      "Fishing Net",
+      "Snake"
+    ],
+    "animals": [
+      "Salmon",
+      "Fly",
+      "Fox"
+    ],
+    "colors": [
+      "Bright Orange",
+      "Venom Green"
+    ],
+    "direction": "Center",
+    "loreOriginal": "Sá er enn taldr með Ásum, er sumir kalla rógbera Ásanna ok frumkveða flærðanna ok vömm allra goða ok manna.",
+    "loreSource": "Gylfaginning, Ch. 33",
+    "artPrompt": "Norse god Loki, mobile game hero card art, symbols: The Mask, Fishing Net, Snake, color palette: Bright Orange, Venom Green, companion animals: Salmon, Fly, epic fantasy style, dark background, rune Kenaz (ᚲ) glowing"
+  },
+  {
+    "heroId": "god_frigg",
+    "nameRu": "Фригг",
+    "nameOriginal": "Frigg",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "BUFFER",
+    "spheres": [
+      "Marriage",
+      "Motherhood",
+      "Prophecy",
+      "Household"
+    ],
+    "runeAnchor": "Perthro (ᛈ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Фригг",
+      "description": "+15% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "The Spindle",
+      "House Keys",
+      "Mistletoe"
+    ],
+    "animals": [
+      "Herons",
+      "Sheep"
+    ],
+    "colors": [
+      "White",
+      "Pale Blue"
+    ],
+    "direction": "Center",
+    "loreOriginal": "Frigg er æðst. Hon á þann bœ er Fensalir heita ok er hann mjök prúðligr.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Frigg, mobile game hero card art, symbols: The Spindle, House Keys, Mistletoe, color palette: White, Pale Blue, companion animals: Herons, Sheep, epic fantasy style, dark background, rune Perthro (ᛈ) glowing"
+  },
+  {
+    "heroId": "god_eir",
+    "nameRu": "Эйр",
+    "nameOriginal": "Eir",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "SUPPORT",
+    "spheres": [
+      "Healing",
+      "Medicine",
+      "Mercy",
+      "Care-taking"
+    ],
+    "runeAnchor": "Berkano (ᛒ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Милость Эйр",
+      "description": "Исцеляет 8% HP команды каждые 20 сек; снимает 1 дебафф"
+    },
+    "visualSymbols": [
+      "Mortar and Pestle",
+      "Healing Herbs",
+      "Copper"
+    ],
+    "animals": [
+      "Dogs"
+    ],
+    "colors": [
+      "White",
+      "Soft Green"
+    ],
+    "direction": "West",
+    "loreOriginal": "Þriðja er Eir. Hon er læknir beztr.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Eir, mobile game hero card art, symbols: Mortar and Pestle, Healing Herbs, Copper, color palette: White, Soft Green, companion animals: Dogs, epic fantasy style, dark background, rune Berkano (ᛒ) glowing"
+  },
+  {
+    "heroId": "god_gefjun",
+    "nameRu": "Гефьон",
+    "nameOriginal": "Gefjun",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "ECONOMY",
+    "spheres": [
+      "Land",
+      "Plowing",
+      "Virginity",
+      "Service"
+    ],
+    "runeAnchor": "Fehu (ᚠ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Дары Гефьон",
+      "description": "+8% золота со всех источников; +25% оффлайн-дохода"
+    },
+    "visualSymbols": [
+      "The Plow",
+      "Four Oxen",
+      "The Field"
+    ],
+    "animals": [
+      "Oxen",
+      "Draft Horses"
+    ],
+    "colors": [
+      "Earth Brown",
+      "Deep Green"
+    ],
+    "direction": "East",
+    "loreOriginal": "Fjórða er Gefjun. Hon er mær, ok henni þjóna þær er meyjar andast.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Gefjun, mobile game hero card art, symbols: The Plow, Four Oxen, The Field, color palette: Earth Brown, Deep Green, companion animals: Oxen, Draft Horses, epic fantasy style, dark background, rune Fehu (ᚠ) glowing"
+  },
+  {
+    "heroId": "god_snotra",
+    "nameRu": "Снотра",
+    "nameOriginal": "Snotra",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "UTILITY",
+    "spheres": [
+      "Courtesy",
+      "Wisdom",
+      "Etiquette",
+      "Self-Control"
+    ],
+    "runeAnchor": "Ansuz (ᚨ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Снотры",
+      "description": "-8% перезарядки умений команды; +25% опыта героев"
+    },
+    "visualSymbols": [
+      "A Folded Napkin",
+      "Handheld Fan",
+      "The Threshold"
+    ],
+    "animals": [
+      "Swan",
+      "Honeybee"
+    ],
+    "colors": [
+      "Soft Violet",
+      "Silver"
+    ],
+    "direction": "The Reception",
+    "loreOriginal": "Þrettánda Snotra. Hon er vitr ok fínlát.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Snotra, mobile game hero card art, symbols: A Folded Napkin, Handheld Fan, The Threshold, color palette: Soft Violet, Silver, companion animals: Swan, Honeybee, epic fantasy style, dark background, rune Ansuz (ᚨ) glowing"
+  },
+  {
+    "heroId": "god_bragi",
+    "nameRu": "Браги",
+    "nameOriginal": "Bragi",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "UTILITY",
+    "spheres": [
+      "Poetry",
+      "Eloquence",
+      "Music",
+      "Skaldship"
+    ],
+    "runeAnchor": "Ansuz (ᚨ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Браги",
+      "description": "-15% перезарядки умений команды; +50% опыта героев"
+    },
+    "visualSymbols": [
+      "The Harp",
+      "The Long Beard",
+      "Mead"
+    ],
+    "animals": [
+      "Songbirds"
+    ],
+    "colors": [
+      "Sky Blue",
+      "Silver"
+    ],
+    "direction": "The Throat",
+    "loreOriginal": "Einn heitir Bragi. Hann er ágætr at speki ok mest at málsnilli ok orðfimi. Hann kann mest af skáldskap.",
+    "loreSource": "Gylfaginning, Ch. 26",
+    "artPrompt": "Norse god Bragi, mobile game hero card art, symbols: The Harp, The Long Beard, Mead, color palette: Sky Blue, Silver, companion animals: Songbirds, epic fantasy style, dark background, rune Ansuz (ᚨ) glowing"
+  },
+  {
+    "heroId": "god_hodr",
+    "nameRu": "Хёд",
+    "nameOriginal": "Höðr",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "TRICKSTER",
+    "spheres": [
+      "Tragedy",
+      "Blindness",
+      "Fate",
+      "Strength"
+    ],
+    "runeAnchor": "Hagalaz (ᚼ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Козни Хёда",
+      "description": "Дебафф защитникам босса: -15% урона и брони на 12 сек"
+    },
+    "visualSymbols": [
+      "Mistletoe Arrow",
+      "Closed Eyes",
+      "Shroud"
+    ],
+    "animals": [
+      "Night Owls"
+    ],
+    "colors": [
+      "Black",
+      "Midnight Blue"
+    ],
+    "direction": "The Nadir",
+    "loreOriginal": "Höðr heitir einn Ássinn, hann er blindr. Œrit er hann styrkr, en vilja mundu goðin at þenna Áss þyrfti eigi at nefna.",
+    "loreSource": "Gylfaginning, Ch. 28",
+    "artPrompt": "Norse god Höðr, mobile game hero card art, symbols: Mistletoe Arrow, Closed Eyes, Shroud, color palette: Black, Midnight Blue, companion animals: Night Owls, epic fantasy style, dark background, rune Hagalaz (ᚼ) glowing"
+  },
+  {
+    "heroId": "god_vidar",
+    "nameRu": "Видар",
+    "nameOriginal": "Víðarr",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "DPS",
+    "spheres": [
+      "Vengeance",
+      "Silence",
+      "Survival",
+      "Nature's Strength"
+    ],
+    "runeAnchor": "Eihwaz (ᛇ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Видара",
+      "description": "+15% урона команды; каждый 20-й удар — сокрушение (x50 урон)"
+    },
+    "visualSymbols": [
+      "The Thick Shoe",
+      "Iron Sword",
+      "Forest"
+    ],
+    "animals": [
+      "Owls",
+      "Lynx"
+    ],
+    "colors": [
+      "Dark Green",
+      "Leather Brown"
+    ],
+    "direction": "Down",
+    "loreOriginal": "Víðarr heitir einn, hinn þögli Áss. Hann á hvern skó þykkvan. Hann er djarfastr næst Þór.",
+    "loreSource": "Gylfaginning, Ch. 29",
+    "artPrompt": "Norse god Víðarr, mobile game hero card art, symbols: The Thick Shoe, Iron Sword, Forest, color palette: Dark Green, Leather Brown, companion animals: Owls, Lynx, epic fantasy style, dark background, rune Eihwaz (ᛇ) glowing"
+  },
+  {
+    "heroId": "god_vali",
+    "nameRu": "Вали",
+    "nameOriginal": "Váli",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "DPS",
+    "spheres": [
+      "Justice",
+      "Marksman-ship",
+      "Survival",
+      "Rapid Growth"
+    ],
+    "runeAnchor": "Eihwaz (ᛇ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Вали",
+      "description": "+15% урона команды; каждый 20-й удар — сокрушение (x50 урон)"
+    },
+    "visualSymbols": [
+      "An Arrow",
+      "Newborn Child",
+      "The Bow"
+    ],
+    "animals": [
+      "Wolf",
+      "Hound"
+    ],
+    "colors": [
+      "Blood Red",
+      "Winter Grey"
+    ],
+    "direction": "The Future",
+    "loreOriginal": "Váli heitir einn, sonr Óðins ok Rindar. Hann er djarfr í orrostum ok mjök happskeytr.",
+    "loreSource": "Gylfaginning, Ch. 30",
+    "artPrompt": "Norse god Váli, mobile game hero card art, symbols: An Arrow, Newborn Child, The Bow, color palette: Blood Red, Winter Grey, companion animals: Wolf, Hound, epic fantasy style, dark background, rune Eihwaz (ᛇ) glowing"
+  },
+  {
+    "heroId": "god_ullr",
+    "nameRu": "Улль",
+    "nameOriginal": "Ullr",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "DPS",
+    "spheres": [
+      "Archery",
+      "Skiing",
+      "Hunting",
+      "Vows"
+    ],
+    "runeAnchor": "Eihwaz (ᛇ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Улля",
+      "description": "+15% урона команды; каждый 20-й удар — сокрушение (x50 урон)"
+    },
+    "visualSymbols": [
+      "Longbow",
+      "Skis",
+      "Arm-Ring"
+    ],
+    "animals": [
+      "Elk",
+      "Wolf"
+    ],
+    "colors": [
+      "Winter White",
+      "Hunter Green"
+    ],
+    "direction": "North",
+    "loreOriginal": "Ullr heitir einn, sonr Sifjar, stjúpsonr Þórs. Hann er bogmaðr svá góðr ok skíðfœrr svá at engi má við hann keppast.",
+    "loreSource": "Gylfaginning, Ch. 31",
+    "artPrompt": "Norse god Ullr, mobile game hero card art, symbols: Longbow, Skis, Arm-Ring, color palette: Winter White, Hunter Green, companion animals: Elk, Wolf, epic fantasy style, dark background, rune Eihwaz (ᛇ) glowing"
+  },
+  {
+    "heroId": "god_forseti",
+    "nameRu": "Форсети",
+    "nameOriginal": "Forseti",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "DPS",
+    "spheres": [
+      "Justice",
+      "Mediation",
+      "Reconciliation",
+      "Law"
+    ],
+    "runeAnchor": "Raidho (ᚱ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Гнев Форсети",
+      "description": "+15% урона команды; каждый 20-й удар — сокрушение (x50 урон)"
+    },
+    "visualSymbols": [
+      "The Gavel",
+      "Scales",
+      "The Axe"
+    ],
+    "animals": [
+      "Falcons",
+      "Horses"
+    ],
+    "colors": [
+      "Gold",
+      "White"
+    ],
+    "direction": "Nadir",
+    "loreOriginal": "Forseti heitir sonr Baldrs ok Nönnu Nepsdóttur. Hann á þann sal á himni er Glitnir heitir.",
+    "loreSource": "Gylfaginning, Ch. 32",
+    "artPrompt": "Norse god Forseti, mobile game hero card art, symbols: The Gavel, Scales, The Axe, color palette: Gold, White, companion animals: Falcons, Horses, epic fantasy style, dark background, rune Raidho (ᚱ) glowing"
+  },
+  {
+    "heroId": "god_saga",
+    "nameRu": "Сага",
+    "nameOriginal": "Sága",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "UTILITY",
+    "spheres": [
+      "History",
+      "Storytelling",
+      "Memories",
+      "Prophecy"
+    ],
+    "runeAnchor": "Perthro (ᛈ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Саги",
+      "description": "-8% перезарядки умений команды; +25% опыта героев"
+    },
+    "visualSymbols": [
+      "Golden Cup",
+      "The Scroll",
+      "Water"
+    ],
+    "animals": [
+      "Otters"
+    ],
+    "colors": [
+      "Deep Indigo",
+      "Gold"
+    ],
+    "direction": "West",
+    "loreOriginal": "Önnur er Sága. Hon býr á Sökkvabekk, ok er þat mikill bœr.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Sága, mobile game hero card art, symbols: Golden Cup, The Scroll, Water, color palette: Deep Indigo, Gold, companion animals: Otters, epic fantasy style, dark background, rune Perthro (ᛈ) glowing"
+  },
+  {
+    "heroId": "god_fulla",
+    "nameRu": "Фулла",
+    "nameOriginal": "Fulla",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "UTILITY",
+    "spheres": [
+      "Secrets",
+      "Confidence",
+      "Abundance",
+      "Personal Care"
+    ],
+    "runeAnchor": "Wunjo (ᚹ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Фуллы",
+      "description": "-8% перезарядки умений команды; +25% опыта героев"
+    },
+    "visualSymbols": [
+      "The Casket",
+      "Golden Snood",
+      "Keys"
+    ],
+    "animals": [
+      "Fawn"
+    ],
+    "colors": [
+      "Gold",
+      "Cream"
+    ],
+    "direction": "Interior",
+    "loreOriginal": "Fimmta er Fulla. Hon er enn mær ok gengr laushár ok hefir gullband um höfuð. Hon berr eski Friggjar.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Fulla, mobile game hero card art, symbols: The Casket, Golden Snood, Keys, color palette: Gold, Cream, companion animals: Fawn, epic fantasy style, dark background, rune Wunjo (ᚹ) glowing"
+  },
+  {
+    "heroId": "god_sjofn",
+    "nameRu": "Сьёфн",
+    "nameOriginal": "Sjöfn",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "BUFFER",
+    "spheres": [
+      "Affection",
+      "Emotional Love",
+      "Family Harmony",
+      "Infatuation"
+    ],
+    "runeAnchor": "Gebo (ᚷ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Сьёфн",
+      "description": "+8% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "Intertwined Hearts",
+      "Hearth",
+      "Clasped Hands"
+    ],
+    "animals": [
+      "Dove"
+    ],
+    "colors": [
+      "Rose Pink",
+      "Deep Red"
+    ],
+    "direction": "Center",
+    "loreOriginal": "Sjöunda er Sjöfn. Hon gætir mjök til at snúa hugum manna til ásta, kvenna ok karla.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Sjöfn, mobile game hero card art, symbols: Intertwined Hearts, Hearth, Clasped Hands, color palette: Rose Pink, Deep Red, companion animals: Dove, epic fantasy style, dark background, rune Gebo (ᚷ) glowing"
+  },
+  {
+    "heroId": "god_lofn",
+    "nameRu": "Лофн",
+    "nameOriginal": "Lofn",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "BUFFER",
+    "spheres": [
+      "Forbidden Love",
+      "Marital Permission",
+      "Kindness",
+      "Praise"
+    ],
+    "runeAnchor": "Laguz (ᛚ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Лофн",
+      "description": "+8% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "Keys",
+      "Permission Scroll",
+      "The Gate"
+    ],
+    "animals": [
+      "Swan"
+    ],
+    "colors": [
+      "Silver",
+      "Lavender"
+    ],
+    "direction": "Threshold",
+    "loreOriginal": "Átta er Lofn. Hon er svá mild ok góð til áheita at hon fær lof af Alföðr eða Frigg til samgangs manna.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Lofn, mobile game hero card art, symbols: Keys, Permission Scroll, The Gate, color palette: Silver, Lavender, companion animals: Swan, epic fantasy style, dark background, rune Laguz (ᛚ) glowing"
+  },
+  {
+    "heroId": "god_var",
+    "nameRu": "Вар",
+    "nameOriginal": "Vár",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "TANK",
+    "spheres": [
+      "Oaths",
+      "Private Compacts",
+      "Contracts",
+      "Truth"
+    ],
+    "runeAnchor": "Gebo (ᚷ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Щит Вар",
+      "description": "+8% HP команды в осадах; блокирует 1 умение босса (кд 45 сек)"
+    },
+    "visualSymbols": [
+      "Wedding Ring",
+      "Contract",
+      "Hands"
+    ],
+    "animals": [
+      "Doves"
+    ],
+    "colors": [
+      "Pure White",
+      "Silver"
+    ],
+    "direction": "Meeting Place",
+    "loreOriginal": "Níunda er Vár. Hon hlýðir á eiða manna ok einkamál er konur ok karlar gera sín á milli.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Vár, mobile game hero card art, symbols: Wedding Ring, Contract, Hands, color palette: Pure White, Silver, companion animals: Doves, epic fantasy style, dark background, rune Gebo (ᚷ) glowing"
+  },
+  {
+    "heroId": "god_vor",
+    "nameRu": "Вёр",
+    "nameOriginal": "Vör",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "UTILITY",
+    "spheres": [
+      "Awareness",
+      "Intuition",
+      "Investigation",
+      "Wisdom"
+    ],
+    "runeAnchor": "Ansuz (ᚨ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Вёр",
+      "description": "-8% перезарядки умений команды; +25% опыта героев"
+    },
+    "visualSymbols": [
+      "Magnifying Glass",
+      "Open Eye",
+      "Lamp"
+    ],
+    "animals": [
+      "Fox",
+      "Lynx"
+    ],
+    "colors": [
+      "White",
+      "Electric Blue"
+    ],
+    "direction": "The Horizon",
+    "loreOriginal": "Tíunda er Vör. Hon er ok vitr ok spurul svá at ekki má hana leyna.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Vör, mobile game hero card art, symbols: Magnifying Glass, Open Eye, Lamp, color palette: White, Electric Blue, companion animals: Fox, Lynx, epic fantasy style, dark background, rune Ansuz (ᚨ) glowing"
+  },
+  {
+    "heroId": "god_syn",
+    "nameRu": "Сюн",
+    "nameOriginal": "Syn",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "TANK",
+    "spheres": [
+      "Defense",
+      "Refusal",
+      "Boundary Protection",
+      "Legal Denial"
+    ],
+    "runeAnchor": "Algiz (ᛉ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Щит Сюн",
+      "description": "+8% HP команды в осадах; блокирует 1 умение босса (кд 45 сек)"
+    },
+    "visualSymbols": [
+      "Locked Door",
+      "The Shield",
+      "Barred Gate"
+    ],
+    "animals": [
+      "Guard Dogs"
+    ],
+    "colors": [
+      "Iron Grey",
+      "Black"
+    ],
+    "direction": "Perimeter",
+    "loreOriginal": "Ellifta er Syn. Hon gætir dura í höllinni ok lýkr fyrir þeim er eigi skulu inn ganga.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Syn, mobile game hero card art, symbols: Locked Door, The Shield, Barred Gate, color palette: Iron Grey, Black, companion animals: Guard Dogs, epic fantasy style, dark background, rune Algiz (ᛉ) glowing"
+  },
+  {
+    "heroId": "god_hlin",
+    "nameRu": "Хлин",
+    "nameOriginal": "Hlín",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "TANK",
+    "spheres": [
+      "Protection",
+      "Rescue",
+      "Consolation",
+      "Safety"
+    ],
+    "runeAnchor": "Algiz (ᛉ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Щит Хлин",
+      "description": "+8% HP команды в осадах; блокирует 1 умение босса (кд 45 сек)"
+    },
+    "visualSymbols": [
+      "The Shield",
+      "Open Hand",
+      "Cloak"
+    ],
+    "animals": [
+      "Deer",
+      "Dogs"
+    ],
+    "colors": [
+      "Grey",
+      "Muted Blue"
+    ],
+    "direction": "Interior",
+    "loreOriginal": "Tólfta er Hlín. Hon er sett til gæzlu yfir þeim mönnum er Frigg vill forða við háska nökkurum.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Hlín, mobile game hero card art, symbols: The Shield, Open Hand, Cloak, color palette: Grey, Muted Blue, companion animals: Deer, Dogs, epic fantasy style, dark background, rune Algiz (ᛉ) glowing"
+  },
+  {
+    "heroId": "god_gna",
+    "nameRu": "Гна",
+    "nameOriginal": "Gná",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "SPEED",
+    "spheres": [
+      "Communication",
+      "Travel",
+      "Agility",
+      "Swiftness"
+    ],
+    "runeAnchor": "Ehwaz (ᛗ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Стремительность Гны",
+      "description": "+8% скорости атаки команды; -25% времени экспедиций"
+    },
+    "visualSymbols": [
+      "Hófvarpnir",
+      "Message Scroll",
+      "Horizon"
+    ],
+    "animals": [
+      "Pigeons",
+      "Swallows"
+    ],
+    "colors": [
+      "Sky Blue",
+      "Windy Grey"
+    ],
+    "direction": "Sky",
+    "loreOriginal": "Fjórtánda er Gná. Hana sendir Frigg í ýmsa heima at sínum erindum.",
+    "loreSource": "Gylfaginning, Ch. 35",
+    "artPrompt": "Norse god Gná, mobile game hero card art, symbols: Hófvarpnir, Message Scroll, Horizon, color palette: Sky Blue, Windy Grey, companion animals: Pigeons, Swallows, epic fantasy style, dark background, rune Ehwaz (ᛗ) glowing"
+  },
+  {
+    "heroId": "god_sif",
+    "nameRu": "Сив",
+    "nameOriginal": "Sif",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "ECONOMY",
+    "spheres": [
+      "Harvest",
+      "Earth",
+      "Fidelity",
+      "Wealth"
+    ],
+    "runeAnchor": "Jera (ᛂ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Дары Сив",
+      "description": "+15% золота со всех источников; +50% оффлайн-дохода"
+    },
+    "visualSymbols": [
+      "Golden Wheat",
+      "The Sickle",
+      "Golden Hair"
+    ],
+    "animals": [
+      "Horses",
+      "Bulls"
+    ],
+    "colors": [
+      "Gold",
+      "Earth Brown"
+    ],
+    "direction": "The Earth",
+    "loreOriginal": "Sif er kona Þórs. Hon er fögr ok hefir gullit hár.",
+    "loreSource": "Gylfaginning, Ch. 21",
+    "artPrompt": "Norse god Sif, mobile game hero card art, symbols: Golden Wheat, The Sickle, Golden Hair, color palette: Gold, Earth Brown, companion animals: Horses, Bulls, epic fantasy style, dark background, rune Jera (ᛂ) glowing"
+  },
+  {
+    "heroId": "god_idunn",
+    "nameRu": "Идунн",
+    "nameOriginal": "Iðunn",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "BUFFER",
+    "spheres": [
+      "Youth",
+      "Vitality",
+      "Immortality",
+      "Renovation"
+    ],
+    "runeAnchor": "Jera (ᛂ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Идунн",
+      "description": "+15% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "The Apple",
+      "The Casket",
+      "Greenery"
+    ],
+    "animals": [
+      "Bees"
+    ],
+    "colors": [
+      "Bright Green",
+      "Apple Red"
+    ],
+    "direction": "East",
+    "loreOriginal": "Iðunn geymir í eski sínu epli þau er goðin skulu á bíta er þau eldast, ok verða þá allir ungir.",
+    "loreSource": "Skáldskaparmál, Ch. 1",
+    "artPrompt": "Norse god Iðunn, mobile game hero card art, symbols: The Apple, The Casket, Greenery, color palette: Bright Green, Apple Red, companion animals: Bees, epic fantasy style, dark background, rune Jera (ᛂ) glowing"
+  },
+  {
+    "heroId": "god_nanna",
+    "nameRu": "Нанна",
+    "nameOriginal": "Nanna",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "BUFFER",
+    "spheres": [
+      "Devotion",
+      "Grief",
+      "Peace",
+      "Family Unity"
+    ],
+    "runeAnchor": "Wunjo (ᚹ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Нанны",
+      "description": "+8% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "Funeral Pyre",
+      "Moon",
+      "Ring"
+    ],
+    "animals": [
+      "Swan",
+      "Dove"
+    ],
+    "colors": [
+      "Silver",
+      "White"
+    ],
+    "direction": "Interior",
+    "loreOriginal": "Nanna Nepsdóttur var kona Baldrs. Hon sprac af harmi ok dó.",
+    "loreSource": "Gylfaginning, Ch. 49",
+    "artPrompt": "Norse god Nanna, mobile game hero card art, symbols: Funeral Pyre, Moon, Ring, color palette: Silver, White, companion animals: Swan, Dove, epic fantasy style, dark background, rune Wunjo (ᚹ) glowing"
+  },
+  {
+    "heroId": "god_hermodr",
+    "nameRu": "Хермод",
+    "nameOriginal": "Hermóðr",
+    "pantheon": "Æsir",
+    "rarity": "EPIC",
+    "role": "SPEED",
+    "spheres": [
+      "Daring",
+      "Communication",
+      "Diplomacy",
+      "Swift Action"
+    ],
+    "runeAnchor": "Ehwaz (ᛗ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Стремительность Хермода",
+      "description": "+15% скорости атаки команды; -50% времени экспедиций"
+    },
+    "visualSymbols": [
+      "Messenger's Staff",
+      "Sleipnir",
+      "Helmet"
+    ],
+    "animals": [
+      "Horses",
+      "Swallows"
+    ],
+    "colors": [
+      "Silver",
+      "Breeze Blue"
+    ],
+    "direction": "The Road",
+    "loreOriginal": "Hermóðr er kallaðr inn hvati, sonr Óðins.",
+    "loreSource": "Gylfaginning, Ch. 49",
+    "artPrompt": "Norse god Hermóðr, mobile game hero card art, symbols: Messenger's Staff, Sleipnir, Helmet, color palette: Silver, Breeze Blue, companion animals: Horses, Swallows, epic fantasy style, dark background, rune Ehwaz (ᛗ) glowing"
+  },
+  {
+    "heroId": "god_hoenir",
+    "nameRu": "Хёнир",
+    "nameOriginal": "Hœnir",
+    "pantheon": "Æsir",
+    "rarity": "RARE",
+    "role": "BUFFER",
+    "spheres": [
+      "Spirit",
+      "Creation",
+      "Silence",
+      "Indecision"
+    ],
+    "runeAnchor": "Mannaz (ᛗ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Хёнира",
+      "description": "+8% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "Long Legs",
+      "Silent Mouth",
+      "Light Spark"
+    ],
+    "animals": [
+      "Stork",
+      "Heron"
+    ],
+    "colors": [
+      "Slate Grey",
+      "Faint Gold"
+    ],
+    "direction": "Nadir",
+    "loreOriginal": "Hœnir, er kallaðr var hinn skjálgi eða inn þögli Áss.",
+    "loreSource": "Skáldskaparmál, Ch. 12",
+    "artPrompt": "Norse god Hœnir, mobile game hero card art, symbols: Long Legs, Silent Mouth, Light Spark, color palette: Slate Grey, Faint Gold, companion animals: Stork, Heron, epic fantasy style, dark background, rune Mannaz (ᛗ) glowing"
+  },
+  {
+    "heroId": "god_njordr",
+    "nameRu": "Ньёрд",
+    "nameOriginal": "Njörðr",
+    "pantheon": "Vanir",
+    "rarity": "EPIC",
+    "role": "ECONOMY",
+    "spheres": [
+      "Sea",
+      "Wind",
+      "Wealth",
+      "Navigation"
+    ],
+    "runeAnchor": "Laguz (ᛚ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Дары Ньёрда",
+      "description": "+15% золота со всех источников; +50% оффлайн-дохода"
+    },
+    "visualSymbols": [
+      "The Ship",
+      "Fishing Net",
+      "Sea-Gulls"
+    ],
+    "animals": [
+      "Seals",
+      "Swans"
+    ],
+    "colors": [
+      "Sea-Foam Green",
+      "Slate Blue"
+    ],
+    "direction": "West",
+    "loreOriginal": "Hinn þriðji Áss er sá er kallaðr er Njörðr. Hann býr á himni þar sem heitir Nóatún. Hann ræðr fyrir göngu vinds ok stillir sjá ok eld.",
+    "loreSource": "Gylfaginning, Ch. 23",
+    "artPrompt": "Norse god Njörðr, mobile game hero card art, symbols: The Ship, Fishing Net, Sea-Gulls, color palette: Sea-Foam Green, Slate Blue, companion animals: Seals, Swans, epic fantasy style, dark background, rune Laguz (ᛚ) glowing"
+  },
+  {
+    "heroId": "god_freyr",
+    "nameRu": "Фрейр",
+    "nameOriginal": "Freyr",
+    "pantheon": "Vanir",
+    "rarity": "LEGENDARY",
+    "role": "ECONOMY",
+    "spheres": [
+      "Fertility",
+      "Prosperity",
+      "Peace",
+      "Sunshine"
+    ],
+    "runeAnchor": "Ingwaz (ᛝ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Дары Фрейра",
+      "description": "+25% золота со всех источников; +100% оффлайн-дохода"
+    },
+    "visualSymbols": [
+      "The Golden Boar",
+      "Skíðblaðnir",
+      "Antlers"
+    ],
+    "animals": [
+      "Stags",
+      "Horses"
+    ],
+    "colors": [
+      "Harvest Gold",
+      "Deep Brown"
+    ],
+    "direction": "East",
+    "loreOriginal": "Freyr er inn ágætasti af Ásum. Hann ræðr fyrir regni ok skini sólar, ok þar með ávexti jarðar.",
+    "loreSource": "Gylfaginning, Ch. 24",
+    "artPrompt": "Norse god Freyr, mobile game hero card art, symbols: The Golden Boar, Skíðblaðnir, Antlers, color palette: Harvest Gold, Deep Brown, companion animals: Stags, Horses, epic fantasy style, dark background, rune Ingwaz (ᛝ) glowing"
+  },
+  {
+    "heroId": "god_freyja",
+    "nameRu": "Фрейя",
+    "nameOriginal": "Freyja",
+    "pantheon": "Vanir",
+    "rarity": "LEGENDARY",
+    "role": "BUFFER",
+    "spheres": [
+      "Love",
+      "Seiðr",
+      "War",
+      "Fertility"
+    ],
+    "runeAnchor": "Fehu (ᚠ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Благословение Фрейи",
+      "description": "+25% ко всем бонусам живых героев"
+    },
+    "visualSymbols": [
+      "Brísingamen",
+      "Falcon Cloak",
+      "The Chariot"
+    ],
+    "animals": [
+      "Cats",
+      "Falcons"
+    ],
+    "colors": [
+      "Gold",
+      "Deep Green"
+    ],
+    "direction": "East",
+    "loreOriginal": "Freyja er ágætust af Ásynjum. Hon á þann bœ á himni er Fólkvangr heitir, ok hvar sem hon ríðr til vígs, þá á hon hálfan val, en hálfan Óðinn.",
+    "loreSource": "Gylfaginning, Ch. 24",
+    "artPrompt": "Norse god Freyja, mobile game hero card art, symbols: Brísingamen, Falcon Cloak, The Chariot, color palette: Gold, Deep Green, companion animals: Cats, Falcons, epic fantasy style, dark background, rune Fehu (ᚠ) glowing"
+  },
+  {
+    "heroId": "god_kvasir",
+    "nameRu": "Квасир",
+    "nameOriginal": "Kvasir",
+    "pantheon": "Vanir",
+    "rarity": "EPIC",
+    "role": "UTILITY",
+    "spheres": [
+      "Wisdom",
+      "Peace",
+      "Inspiration",
+      "Mediation"
+    ],
+    "runeAnchor": "Ansuz (ᚨ)",
+    "runeSynergy": "Экипированная руна-якорь удваивает эффект умения",
+    "skill": {
+      "name": "Мудрость Квасира",
+      "description": "-15% перезарядки умений команды; +50% опыта героев"
+    },
+    "visualSymbols": [
+      "The Cauldron",
+      "Saliva/Peace Bowl",
+      "Honey"
+    ],
+    "animals": [
+      "Bees"
+    ],
+    "colors": [
+      "Amber Gold",
+      "Honey White"
+    ],
+    "direction": "Center",
+    "loreOriginal": "Vönunum... kallaður Kvasir. Hann var svo vitur að engi maður spurði hann þeirra hluta er eigi kunni hann úrlausn.",
+    "loreSource": "Ynglinga Saga, Ch. 4",
+    "artPrompt": "Norse god Kvasir, mobile game hero card art, symbols: The Cauldron, Saliva/Peace Bowl, Honey, color palette: Amber Gold, Honey White, companion animals: Bees, epic fantasy style, dark background, rune Ansuz (ᚨ) glowing"
+  }
+]

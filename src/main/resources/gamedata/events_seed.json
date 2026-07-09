@@ -1,0 +1,52 @@
+[
+  {
+    "eventId": "event_sigrblot",
+    "nameRu": "Сигрблот",
+    "nameOriginal": "Sigrblót",
+    "month": "APRIL",
+    "durationDays": 7,
+    "gameMechanics": "Ивент побед: x2 награды с осадных боссов, турнир PvP",
+    "historicalPurpose": "Sacrifice for victory (sigr) as the raiding and sailing season begins.",
+    "loreSource": "Ynglinga Saga, Ch. 8"
+  },
+  {
+    "eventId": "event_vetrnaetr",
+    "nameRu": "Зимние Ночи",
+    "nameOriginal": "Vetrnætr (Winter Nights)",
+    "month": "OCTOBER",
+    "durationDays": 7,
+    "gameMechanics": "Ивент духов: призывы героинь-дис со скидкой 30%",
+    "historicalPurpose": "To welcome the winter and honor the Dísir (female guardians).",
+    "loreSource": "Ynglinga Saga, Ch. 8"
+  },
+  {
+    "eventId": "event_jol",
+    "nameRu": "Йоль",
+    "nameOriginal": "Jól (Yule)",
+    "month": "JANUARY",
+    "durationDays": 7,
+    "gameMechanics": "Главный зимний ивент: ежедневные подарки, лимитированный герой",
+    "historicalPurpose": "Sacrifice for the growth (gróðrar) of the coming year.",
+    "loreSource": "Saga of Haakon the Good, Ch. 13-15"
+  },
+  {
+    "eventId": "event_thorrablot",
+    "nameRu": "Торраблот",
+    "nameOriginal": "Þorrablót",
+    "month": "JANUARY",
+    "durationDays": 7,
+    "gameMechanics": "Неделя Тора: +100% силы Тора, дроп фрагментов Мьёльнира",
+    "historicalPurpose": "Sacrifice to personified Winter (Þorri) to ensure the frost remains manageable.",
+    "loreSource": "Orkneyinga Saga"
+  },
+  {
+    "eventId": "event_alfablot",
+    "nameRu": "Альваблот",
+    "nameOriginal": "Álfablót",
+    "month": "NOVEMBER",
+    "durationDays": 7,
+    "gameMechanics": "Ивент предков: x2 осколков в костре, скидка на тир-ап",
+    "historicalPurpose": "Private sacrifice to the Alfar (ancestors) for the luck of the home.",
+    "loreSource": "Austrfararvísur"
+  }
+]

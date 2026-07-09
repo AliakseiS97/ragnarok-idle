@@ -1,0 +1,26 @@
+{
+  "_idea": "ИДЕЯ (отмечено по запросу): использовать данные из сидов для генерации через AI — арт карточек героев/артефактов, флейвор-текстов и молочёвки для фронта. Каждый герой уже имеет готовый artPrompt, собранный из visual_symbols + colors + animals + rune. Ниже — шаблоны для остальных типов контента.",
+  "templates": {
+    "hero_card_art": {
+      "usage": "Подставить поля из heroes_gods_seed.json. Уже сгенерировано в поле artPrompt каждого героя.",
+      "template": "Norse god {nameOriginal}, mobile game hero card art, symbols: {visualSymbols}, color palette: {colors}, companion animals: {animals}, epic fantasy style, dark background, rune {runeAnchor} glowing",
+      "negative": "text, watermark, blurry, modern clothing, photorealistic faces"
+    },
+    "artifact_card_art": {
+      "usage": "Подставить поля из artifacts_seed.json. Уже сгенерировано в поле artPrompt.",
+      "template": "Legendary Norse artifact {nameOriginal}, mobile game item card, glowing runes, epic fantasy style, dark background, {lorePurpose}"
+    },
+    "rune_icon": {
+      "usage": "Иконки рун для инвентаря. Тир задаёт цвет свечения: 1=зелёный, 2=синий, 3=фиолетовый, 4=золотой.",
+      "template": "Ancient Norse rune {symbol} ({name}), carved glowing stone icon, {tierColor} magical glow, mobile game inventory icon, dark stone background, centered"
+    },
+    "flavor_text_generation": {
+      "usage": "Молочёвка/флейвор для фронта: подсказки на загрузочных экранах, описания предметов, реплики героев. Скармливаем LLM строфы из lore/*.json как контекст.",
+      "template": "Ты — скальд. На основе этой строфы из Эдды: '{loreOriginal}' — напиши короткую (1-2 предложения) реплику героя {nameRu} для мобильной игры. Тон: эпичный, но с лёгкой иронией. Без цитирования оригинала."
+    },
+    "loading_screen_tips": {
+      "usage": "Советы на загрузку из строф Хавамаля (havamal_api_v1_gold.json, 164 строфы = 164 уникальных подсказки).",
+      "template": "Перескажи мудрость этой строфы Хавамаля одним предложением как игровой совет: '{stanza_translation}'"
+    }
+  }
+}

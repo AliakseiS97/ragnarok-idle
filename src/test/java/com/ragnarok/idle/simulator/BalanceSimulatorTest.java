@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Тесты симулятора баланса: детекция стены и ускорение прохождения Пеплом. */
+/** Тесты симулятора баланса: детекция стены и ускорение прохождения Славой. */
 class BalanceSimulatorTest {
 
     /**
@@ -34,9 +34,9 @@ class BalanceSimulatorTest {
     }
 
     /**
-     * Ненулевой Пепел ускоряет прохождение: он множит DPS (HeroService.ASH_DPS_STEP), поэтому в режиме,
+     * Ненулевая Слава ускоряет прохождение: она множит DPS (HeroService.ASH_DPS_STEP), поэтому в режиме,
      * где урон — бутылочное горлышко, тот же рубеж достигается за меньшее игровое время. Это и есть
-     * механизм, из-за которого 2-е прохождение (со стартовым Пеплом) быстрее 1-го.
+     * механизм, из-за которого 2-е прохождение (со стартовой Славой) быстрее 1-го.
      */
     @Test
     void ashSpeedsUpProgression() {
@@ -45,9 +45,9 @@ class BalanceSimulatorTest {
         long withoutAsh = BalanceSimulator.secondsToReachFloor(5, BigNum.ZERO, floor, maxSeconds);
         long withAsh = BalanceSimulator.secondsToReachFloor(5, BigNum.of(1_000_000), floor, maxSeconds);
 
-        assertTrue(withoutAsh > 0, "без Пепла рубеж достигнут: " + withoutAsh);
-        assertTrue(withAsh > 0, "с Пеплом рубеж достигнут: " + withAsh);
+        assertTrue(withoutAsh > 0, "без Славы рубеж достигнут: " + withoutAsh);
+        assertTrue(withAsh > 0, "с Славой рубеж достигнут: " + withAsh);
         assertTrue(withAsh < withoutAsh,
-                "с Пеплом должно быть быстрее: сПеплом=%d, безПепла=%d".formatted(withAsh, withoutAsh));
+                "с Славой должно быть быстрее: сСлавой=%d, безСлавы=%d".formatted(withAsh, withoutAsh));
     }
 }

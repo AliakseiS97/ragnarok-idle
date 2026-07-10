@@ -29,7 +29,7 @@ import java.util.Map;
  * {@link Saga}/{@link SagaRank} (множители и стены), {@link BulkPurchase} (max-покупка).
  *
  * <p>ЗЕРКАЛИТ (с ссылками на источник) только то, что заперто в БД/private/instance-методах:
- * агрегацию DPS героев, цену апгрейда героя, формулу Пепла и сид героев.
+ * агрегацию DPS героев, цену апгрейда героя, формулу Славы и сид героев.
  */
 public class SimState {
 
@@ -42,7 +42,7 @@ public class SimState {
     private static final double BAFFER_MILESTONE_BONUS = 0.25;
     /** mirrors HeroService.SPECIAL_BAFFER_MULT (L36). */
     private static final double SPECIAL_BAFFER_MULT = 3.0;
-    /** mirrors HeroService.ASH_DPS_STEP (L38): +0.3% общего DPS за единицу Пепла. */
+    /** mirrors HeroService.ASH_DPS_STEP (L38): +0.3% общего DPS за единицу Славы. */
     private static final double ASH_DPS_STEP = 0.003;
     /** mirrors HeroService.UPGRADE_COST_GROWTH (L40): цена апгрейда героя ×1.07/уровень. */
     private static final double UPGRADE_COST_GROWTH = 1.07;
@@ -115,7 +115,7 @@ public class SimState {
         return player.getMaxLevel();
     }
 
-    /** Задать стартовый Пепел (для сравнения прохождений в тесте); в норме копится через ребёрты. */
+    /** Задать стартовую Славу (для сравнения прохождений в тесте); в норме копится через ребёрты. */
     public void injectAsh(BigNum ash) {
         player.setAsh(ash);
     }
@@ -356,9 +356,9 @@ public class SimState {
     }
 
     /**
-     * Перерождение: Пепел += floor(mobHp(maxLevel)^0.0009 × 2.5), сброс забега (золото→0, ур.→1,
+     * Перерождение: Слава += floor(mobHp(maxLevel)^0.0009 × 2.5), сброс забега (золото→0, ур.→1,
      * герои теряются, тап→1), maxLevel сохраняется. mirrors RebirthService.rebirth (L48-92).
-     * Возвращает полученный Пепел.
+     * Возвращает полученный Слава.
      */
     public BigNum rebirth() {
         BigNum ashGained = EconomyCurves.mobHp(player.getMaxLevel())

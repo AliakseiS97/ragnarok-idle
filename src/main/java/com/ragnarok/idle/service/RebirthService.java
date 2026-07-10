@@ -26,7 +26,7 @@ public class RebirthService {
     /** ashGained = floor(ashBoost × mobHP(maxLevel)^ashExp) (GDD §3.9). */
     private static final double ASH_EXPONENT = 0.0009;
 
-    /** Буст выхода Пепла ×2.5 (балансировка плейтеста: базовая формула давала слишком мало). */
+    /** Буст выхода Славы ×2.5 (балансировка плейтеста: базовая формула давала слишком мало). */
     private static final double ASH_BOOST = 2.5;
 
     private final PlayerRepository playerRepository;
@@ -41,9 +41,9 @@ public class RebirthService {
     }
 
     /**
-     * Полный сброс забега в обмен на Пепел: золото → 0, уровень → 1, герои теряются
+     * Полный сброс забега в обмен на Славу: золото → 0, уровень → 1, герои теряются
      * совсем (в UI — «ур. 0», нанимать заново), Аватар — на стартовый ур.1 тапа.
-     * Сохраняются только Пепел и maxLevel (исторический рекорд).
+     * Сохраняются только Слава и maxLevel (исторический рекорд).
      */
     @Transactional
     public RebirthResponse rebirth(String username) {

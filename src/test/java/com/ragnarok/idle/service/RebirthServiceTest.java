@@ -98,7 +98,7 @@ class RebirthServiceTest {
 
         RebirthResponse response = rebirthService.rebirth("rebirth_ok");
 
-        // floor(2.5 × mobHP(5000)^0.0009) = floor(2.5 × 1.04) = 2 (буст Пепла ×2.5)
+        // floor(2.5 × mobHP(5000)^0.0009) = floor(2.5 × 1.04) = 2 (буст Славы ×2.5)
         assertEquals("2", response.ashGained().display());
         assertEquals("2", response.totalAsh().display());
 

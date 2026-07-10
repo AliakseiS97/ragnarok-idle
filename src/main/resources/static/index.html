@@ -206,7 +206,7 @@
     <div id="statusBar">
         <div><span class="label">Уровень</span><span class="value" id="stLevel">-</span></div>
         <div><span class="label">Золото</span><span class="value" id="stGold">-</span></div>
-        <div><span class="label">Пепел</span><span class="value" id="stAsh">-</span></div>
+        <div><span class="label">Слава</span><span class="value" id="stAsh">-</span></div>
         <div><span class="label">Урон/клик</span><span class="value" id="stDpc">-</span></div>
         <div><span class="label">DPS</span><span class="value" id="stDps">-</span></div>
     </div>
@@ -426,7 +426,7 @@
         rebirthButton.title = state.rebirthReady ? '' : (state.rebirthHint || '');
 
         if (state.ashDropCollected && state.ashDropCollected.display !== '0') {
-            showToast('🔥 +' + state.ashDropCollected.display + ' Пепла с моба!', true);
+            showToast('🔥 +' + state.ashDropCollected.display + ' Славы с моба!', true);
         }
 
         renderHeroes(state.heroes);
@@ -516,7 +516,7 @@
             if (!isLatest(seq)) return; // ответ устарел (напр. ребёрт уже сбросил состояние) — игнор
 
             var msg = 'Урон ' + res.damageDealt.display + ' · +' + res.goldGained.display + ' золота';
-            if (res.ashGained && res.ashGained.display !== '0') msg += ' · 🔥 +' + res.ashGained.display + ' Пепла!';
+            if (res.ashGained && res.ashGained.display !== '0') msg += ' · 🔥 +' + res.ashGained.display + ' Славы!';
             if (res.bossDefeated) msg += ' · 👑 Босс повержен!';
             if (res.leveledUp) msg += ' · Новый уровень: ' + res.currentLevel;
             document.getElementById('tapFeedback').textContent = msg;
@@ -584,13 +584,13 @@
 
     // ---- rebirth ----
     document.getElementById('rebirthButton').addEventListener('click', function () {
-        if (!confirm('Перерождение сбросит ВСЁ: уровень, золото, героев (нанимать заново) и прокачку Аватара — в обмен на Пепел. Продолжить?')) return;
+        if (!confirm('Перерождение сбросит ВСЁ: уровень, золото, героев (нанимать заново) и прокачку Аватара — в обмен на Славу. Продолжить?')) return;
 
         withPollPaused(function () {
             var seq = beginRequest();
             return api('/rebirth', 'POST', {}).then(function (res) {
                 if (isLatest(seq)) {
-                    showToast('Получено Пепла: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
+                    showToast('Получено Славы: ' + res.ashGained.display + ' (всего: ' + res.totalAsh.display + ')', true);
                 }
                 refreshState();
             }).catch(function (err) { showError(err.message); });

@@ -119,7 +119,7 @@ public final class BalanceSimulator {
                 BigNum ashGained = state.rebirth();
                 rebirthAt.add(t);
                 log(logToConsole, t, SimEvent.Kind.REBIRTH,
-                        "ПЕРЕРОЖДЕНИЕ #%d: +Пепел %s (всего %s)"
+                        "ПЕРЕРОЖДЕНИЕ #%d: +Слава %s (всего %s)"
                                 .formatted(rebirthAt.size(), ashGained.toDisplayString(), state.ash().toDisplayString()));
                 runFrontier = 1;
                 prevLevel = 1;
@@ -148,7 +148,7 @@ public final class BalanceSimulator {
                 log(logToConsole, t, SimEvent.Kind.WALL, wallText(newWall, t));
             }
             if (logToConsole && t > 0 && t % 3600 == 0) {   // почасовой heartbeat прогресса
-                System.out.printf("%s | ПРОГРЕСС     | этаж %d, золото %s, DPS %s, Пепел %s%n",
+                System.out.printf("%s | ПРОГРЕСС     | этаж %d, золото %s, DPS %s, Слава %s%n",
                         hms(t), cur, state.gold().toDisplayString(), state.totalDps().toDisplayString(),
                         state.ash().toDisplayString());
             }
@@ -254,7 +254,7 @@ public final class BalanceSimulator {
         System.out.printf("Параметры: клики/сек=%d, порог стены=%dс, лимит=%dч, ребёртов до стопа=%d%n",
                 config.clicksPerSecond(), config.wallThresholdSeconds(), config.maxSimulatedHours(),
                 config.rebirthsToStop());
-        System.out.printf("Достигнуто: этаж %d, ребёртов %d, Пепел %s, симулировано %s игрового времени%n",
+        System.out.printf("Достигнуто: этаж %d, ребёртов %d, Слава %s, симулировано %s игрового времени%n",
                 Math.max(runFrontier, state.maxLevel()), rebirthAt.size(), state.ash().toDisplayString(), hms(total));
 
         System.out.println("\n-- Время до ключевых рубежей --");
@@ -295,7 +295,7 @@ public final class BalanceSimulator {
         System.out.printf("  активный прогресс : %s (%.1f%%)%n", hms(secondsPushing), pct(secondsPushing, total));
         System.out.printf("  ожидание золота   : %s (%.1f%%)%n", hms(secondsFarming), pct(secondsFarming, total));
 
-        System.out.println("\n-- Сравнение прохождений (ускорение от Пепла) --");
+        System.out.println("\n-- Сравнение прохождений (ускорение от Славы) --");
         if (rebirthAt.size() >= 2) {
             long run1 = rebirthAt.get(0);
             long run2 = rebirthAt.get(1) - rebirthAt.get(0);
@@ -333,8 +333,8 @@ public final class BalanceSimulator {
     // ---------- Хелперы для тестов ----------
 
     /**
-     * Игровое время (сек) до достижения этажа {@code floor} с заданным стартовым Пеплом; -1 если не
-     * достигнут за {@code maxSeconds}. Используется, чтобы показать, что Пепел ускоряет прохождение.
+     * Игровое время (сек) до достижения этажа {@code floor} с заданным стартовым Славой; -1 если не
+     * достигнут за {@code maxSeconds}. Используется, чтобы показать, что Слава ускоряет прохождение.
      */
     public static long secondsToReachFloor(int clicksPerSecond, BigNum startingAsh, long floor, long maxSeconds) {
         Config cfg = new Config(clicksPerSecond, 600, 1000, 99, 10, 42L);

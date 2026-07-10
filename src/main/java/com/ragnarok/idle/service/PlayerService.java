@@ -71,7 +71,7 @@ public class PlayerService {
         return getState(username, mode, BigNum.ZERO);
     }
 
-    /** @param extraAsh Пепел, дропнутый ВНЕ этого тика (напр. большой батч {@link #skipTime}) — добавляется к ashDropCollected. */
+    /** @param extraAsh Слава, дропнутый ВНЕ этого тика (напр. большой батч {@link #skipTime}) — добавляется к ashDropCollected. */
     private PlayerStateResponse getState(String username, PurchaseMode mode, BigNum extraAsh) {
         Player player = playerRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Player not found"));
@@ -218,7 +218,7 @@ public class PlayerService {
         return getState(username, PurchaseMode.X1, ashGained);
     }
 
-    /** Результат тика пассивного DPS: офлайн-золото и Пепел, дропнутый (если) во время онлайн-тика. */
+    /** Результат тика пассивного DPS: офлайн-золото и Слава, дропнутый (если) во время онлайн-тика. */
     private record TickResult(BigNum offlineGold, BigNum ashGained) {
         static final TickResult NONE = new TickResult(BigNum.ZERO, BigNum.ZERO);
     }
@@ -227,9 +227,9 @@ public class PlayerService {
      * Пассивный DPS героев (GDD §3.5) за время с прошлого обращения:
      * - короткая пауза (≤{@link #ONLINE_TICK_MAX_SECONDS}) — DPS наносится уроном через
      *   {@link CombatEngine}: убивает мобов/боссов и двигает уровни, как тапы (в т.ч. может
-     *   дропнуть Пепел с обычных мобов, если {@code rebirthCount >= 1});
+     *   дропнуть Слава с обычных мобов, если {@code rebirthCount >= 1});
      * - длинная пауза (офлайн) — только золото по текущему уровню с потолком 12ч, уровни офлайн
-     *   не двигаются (GDD §12.5); дискретных убийств там нет, поэтому дроп Пепла не работает.
+     *   не двигаются (GDD §12.5); дискретных убийств там нет, поэтому дроп Славы не работает.
      */
     private TickResult applyPassiveDps(Player player) {
         LocalDateTime now = LocalDateTime.now();

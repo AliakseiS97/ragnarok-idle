@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Дроп Пепла с обычных мобов (правка ТЗ п.4): только после 1-го перерождения, 2% шанс, не с боссов.
+ * Дроп Славы с обычных мобов (правка ТЗ п.4): только после 1-го перерождения, 2% шанс, не с боссов.
  * Источник случайности подменяется НЕ Mockito-мокой (JDK-функциональные интерфейсы не инструментируются
  * inline mock maker на этой JDK), а обычным Spring-бином из {@link Config} с приоритетом {@code @Primary}.
  */
@@ -86,12 +86,12 @@ class AshDropTest {
         player.setRebirthCount(1L);
         playerRepository.save(player);
         giveOneShotKillDamage("ash_after_rebirth");
-        ashDropRoll.setNext(0.0); // < 2% — гарантированный дроп
+        ashDropRoll.setNext(0.0); // < 2.7% — гарантированный дроп
 
         TapResponse response = battleService.tap("ash_after_rebirth", 1);
 
-        // ур.1: floor(1 + 1/100) = 1
-        assertEquals("1", response.ashGained().display());
+        // баланс: плоские 2 Славы за дроп (было floor(1 + level/100))
+        assertEquals("2", response.ashGained().display());
     }
 
     @Test
@@ -101,7 +101,7 @@ class AshDropTest {
         player.setRebirthCount(1L);
         playerRepository.save(player);
         giveOneShotKillDamage("ash_miss");
-        ashDropRoll.setNext(0.5); // >= 2% — промах
+        ashDropRoll.setNext(0.5); // >= 2.7% — промах
 
         TapResponse response = battleService.tap("ash_miss", 1);
 
@@ -118,7 +118,7 @@ class AshDropTest {
         player.setCurrentMobHp(EconomyCurves.bossHp(5));
         playerRepository.save(player);
         giveOneShotKillDamage("ash_boss");
-        ashDropRoll.setNext(0.0); // гарантированный бросок, но босс не роняет Пепел
+        ashDropRoll.setNext(0.0); // гарантированный бросок, но босс не роняет Слава
 
         TapResponse response = battleService.tap("ash_boss", 1);
 

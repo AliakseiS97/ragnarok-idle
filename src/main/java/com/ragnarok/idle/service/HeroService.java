@@ -34,7 +34,7 @@ public class HeroService {
     /** +25% к общему DPS команды разово на вехе; дальше растёт только личный DPS бафера. */
     private static final double BAFFER_MILESTONE_BONUS = 0.25;
     private static final double SPECIAL_BAFFER_MULT = 3.0;
-    /** +0.3% к общему DPS за единицу Пепла, постоянно (GDD §3.9, economy_constants.md: "Пепел за 1% DPS"). */
+    /** +0.3% к общему DPS за единицу Славы, постоянно (GDD §3.9, economy_constants.md: "Слава за 1% DPS"). */
     private static final double ASH_DPS_STEP = 0.003;
     /** Цена апгрейда героя растёт на 7%/уровень; базой берём цену найма героя (в источнике отдельно не указана). */
     private static final double UPGRADE_COST_GROWTH = 1.07;
@@ -73,7 +73,7 @@ public class HeroService {
         for (PlayerHero ph : owned) {
             Hero hero = heroesById.get(ph.getHeroId());
             // heroDPS = baseDPS × dpsGrowth^(level-1) × sagaMult (личный множитель Саги, GDD §3.8/§3.5);
-            // тим-бонус баферов и глобальный Пепел домножаются ниже, уже поверх суммы.
+            // тим-бонус баферов и глобальный Слава домножаются ниже, уже поверх суммы.
             BigNum sagaMult = Saga.dpsMultiplier(ph.getSagaRank(), ph.getSagaSubStep());
             BigNum heroDps = hero.getBaseDps()
                     .multiply(BigNum.of(DPS_GROWTH).pow(ph.getLevel() - 1))

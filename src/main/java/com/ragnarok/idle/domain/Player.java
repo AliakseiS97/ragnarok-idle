@@ -76,7 +76,7 @@ public class Player {
     @Column(name = "boss_started_at")
     private LocalDateTime bossStartedAt;
 
-    /** Сколько раз игрок перерождался. Дроп Пепла с мобов открывается только при rebirthCount >= 1. */
+    /** Сколько раз игрок перерождался. Дроп Славы с мобов открывается только при rebirthCount >= 1. */
     @Column(name = "rebirth_count", nullable = false)
     private Long rebirthCount = 0L;
 }

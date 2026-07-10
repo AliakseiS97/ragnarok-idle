@@ -31,18 +31,18 @@ public class CombatEngine {
     private static final long MAX_HITS_PER_REQUEST = 200_000;
 
     /**
-     * Шанс дропа Пепла с ОБЫЧНОГО (не боссового) моба, доступен только после 1-го перерождения
-     * ({@code player.rebirthCount >= 1}) — правка ТЗ. Именованная константа, значение синхронизировано
-     * с economy_constants.md ("Шанс дропа Пепла с моба").
+     * Шанс дропа Славы с ОБЫЧНОГО (не боссового) моба, доступен только после 1-го перерождения
+     * ({@code player.rebirthCount >= 1}). Синхронизировано с economy_constants.md ("Шанс дропа Славы с моба").
      */
-    static final double ASH_DROP_CHANCE = 0.02;
+    static final double ASH_DROP_CHANCE = 0.027;
 
     /**
-     * Делитель уровня для количества дропнутого Пепла: {@code floor(1 + level / divisor)} — привязка
-     * к номеру уровня, а не к HP (HP растёт экспоненциально и сломает баланс). Синхронизировано с
-     * economy_constants.md ("Делитель уровня для дропа Пепла").
+     * Плоское количество Славы за один дроп (баланс по симулятору): раньше росло с уровнем
+     * {@code floor(1 + level/100)} и на глубине переполняло экономику. Теперь фикс. {@value} —
+     * за 100 уровней капает ~40-45 Славы на любой глубине (8 обычных этажей из 10 × 10 мобов ×
+     * 0.027 × 2 ≈ 43; боссовые этажи мобов не дают). К 230 уровню ~98 (< 100).
      */
-    static final double ASH_DROP_LEVEL_DIVISOR = 100.0;
+    static final int ASH_PER_DROP = 2;
 
     private final DoubleSupplier ashDropRoll;
 
@@ -154,7 +154,7 @@ public class CombatEngine {
             } else {
                 mobsKilled++;
                 if (player.getRebirthCount() >= 1 && ashDropRoll.getAsDouble() < ASH_DROP_CHANCE) {
-                    ashGained = ashGained.add(BigNum.of(Math.floor(1 + level / ASH_DROP_LEVEL_DIVISOR)));
+                    ashGained = ashGained.add(BigNum.of(ASH_PER_DROP));
                 }
                 if (subLevel < EconomyCurves.MOBS_PER_LEVEL) {
                     player.setCurrentSubLevel(subLevel + 1);

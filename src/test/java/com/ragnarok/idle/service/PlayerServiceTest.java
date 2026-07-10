@@ -46,10 +46,10 @@ class PlayerServiceTest {
 
         PlayerStateResponse state = playerService.getState("afk_cap");
 
-        // goldPerSecond = totalPassiveDps(5) * goldPerMob(1)/mobHp(1) = 5 * (5/10) = 2.5 золота/сек.
-        // Потолок 12ч = 43200 сек -> ожидаем 108000 золота, а не 100ч-эквивалент.
+        // goldPerSecond = totalPassiveDps(5) * goldPerMob(1)/mobHp(1) = 5 * (2/10) = 1.0 золота/сек (BASE_GOLD=2, баланс).
+        // Потолок 12ч = 43200 сек -> ожидаем 43200 золота, а не 100ч-эквивалент.
         double offlineGold = toPlain(state.offlineGoldCollected().mantissa(), state.offlineGoldCollected().exponent());
-        assertEquals(108000.0, offlineGold, 5.0);
+        assertEquals(43200.0, offlineGold, 5.0);
     }
 
     @Test
@@ -75,7 +75,7 @@ class PlayerServiceTest {
         // Ур.2 (мобы 26 HP): 6 ударов добивают 1-го моба (излишек сгорает), 4 удара x5 во 2-го -> 26-20=6.
         assertEquals(2L, state.currentLevel(), "без единого тапа пройден уровень");
         assertEquals(2, state.currentSubLevel());
-        assertEquals("62", state.gold().display(), "10 мобов ур.1 x5 + 1 моб ур.2 x12");
+        assertEquals("25", state.gold().display(), "10 мобов ур.1 x2 + 1 моб ур.2 x5 (BASE_GOLD=2, баланс)");
         assertEquals("0", state.offlineGoldCollected().display(), "онлайн-тик — не офлайн-доход");
         assertEquals("6", state.currentMobHp().display());
     }

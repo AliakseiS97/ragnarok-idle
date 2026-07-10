@@ -44,8 +44,9 @@ class EconomyCurvesTest {
 
     @Test
     void goldPerMobAtLevel1MatchesBaseGold() {
-        // economy_constants.md: "Золото за моба ур.1 | 5"
-        assertEquals(5.0, toPlain(EconomyCurves.goldPerMob(1)), 0.0001);
+        // Баланс прогрессии (симулятор): золото за моба ур.1 = BASE_GOLD = 2 — замедляет приток
+        // золота, чтобы обычный игрок проходил 100 этажей за ~55 мин, а не за ~21.
+        assertEquals(2.0, toPlain(EconomyCurves.goldPerMob(1)), 0.0001);
     }
 
     @Test

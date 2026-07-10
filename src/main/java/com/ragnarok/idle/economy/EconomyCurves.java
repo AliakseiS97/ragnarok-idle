@@ -15,7 +15,7 @@ public final class EconomyCurves {
     public static final int MOBS_PER_LEVEL = 10;
 
     private static final BigNum BASE_HP = BigNum.of(10);
-    private static final BigNum BASE_GOLD = BigNum.of(5);
+    private static final BigNum BASE_GOLD = BigNum.of(2);
 
     /**
      * Степенной множитель непрерывного роста HP: подобран по ориентирам плейтеста

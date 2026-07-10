@@ -213,7 +213,7 @@ public final class BalanceSimulator {
     // ---------- Журнал ----------
 
     private void log(boolean toConsole, long t, SimEvent.Kind kind, String text) {
-        SimEvent e = new SimEvent(t, kind, text, state.currentLevel(), state.gold(), state.totalDps());
+        SimEvent e = new SimEvent(t, kind, text, state.currentLevel(), state.gold(), state.totalDps(), state.ash());
         events.add(e);   // в CSV попадают ВСЕ события
         if (toConsole && consoleWorthy(kind, e.floor())) {   // в консоль — только ключевые (детали в CSV)
             System.out.printf("%s | %-11s | %-58s | этаж %-5d | %s зол | %s DPS%n",
@@ -231,7 +231,7 @@ public final class BalanceSimulator {
     }
 
     private void writeCsv(Path path) {
-        StringBuilder sb = new StringBuilder("game_time_seconds,event,floor,gold,dps\n");
+        StringBuilder sb = new StringBuilder("game_time_seconds,event,floor,gold,dps,ash\n");
         for (SimEvent e : events) {
             sb.append(e.toCsvRow()).append('\n');
         }

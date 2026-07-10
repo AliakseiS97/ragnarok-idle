@@ -58,7 +58,7 @@ class BattleServiceTest {
         assertEquals(1L, response.currentLevel());
         assertEquals(2, response.currentSubLevel());
         assertEquals("8", response.currentMobHpRemaining().display());
-        assertEquals("5", response.goldGained().display()); // goldPerMob(1) = 5
+        assertEquals("2", response.goldGained().display()); // goldPerMob(1) = BASE_GOLD = 2 (баланс)
     }
 
     @Test
